@@ -40,8 +40,8 @@ namespace SistemaCredenciales.Services
                         Escuela TEXT,
                         Area TEXT,
                         Entregada INTEGER DEFAULT 0,
-                        RutaFirma TEXT
-ArchivoOrigen TEXT
+                        RutaFirma TEXT,
+                        ArchivoOrigen TEXT
                     );
                     ";
 
