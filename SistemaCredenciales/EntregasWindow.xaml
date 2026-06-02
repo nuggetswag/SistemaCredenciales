@@ -49,12 +49,6 @@
                     Margin="20,0,0,0"
                     Click="BtnExportarPdf_Click"/>
 
-            <Button Content="💾 Exportar CSV"
-                    Height="38"
-                    Width="150"
-                    Margin="10,0,0,0"
-                    Click="BtnExportar_Click"/>
-
             <Button Content="👁 Ver firma"
                     Style="{StaticResource GhostButton}"
                     Height="38"

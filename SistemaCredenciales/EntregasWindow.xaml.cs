@@ -134,40 +134,5 @@ namespace SistemaCredenciales
             }
         }
 
-        private void BtnExportar_Click(object sender, RoutedEventArgs e)
-        {
-            if (entregas.Count == 0)
-            {
-                Dialogo.Show("No hay entregas para exportar.");
-                return;
-            }
-
-            string escuela = cmbEscuela.SelectedItem as string ?? TodasLasEscuelas;
-            string etiqueta = escuela == TodasLasEscuelas ? "Todas" : escuela;
-
-            AppConfig.Actual.AsegurarCarpetas();
-
-            string ruta = Path.Combine(
-                AppConfig.Actual.CarpetaReportes,
-                $"Entregas_{etiqueta}_{DateTime.Now:yyyy-MM-dd_HH-mm}.csv");
-
-            try
-            {
-                var export = new ExportService();
-                export.ExportarCsv(entregas, ruta);
-
-                Dialogo.Show($"Se exportaron {entregas.Count} entregas.");
-
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = ruta,
-                    UseShellExecute = true
-                });
-            }
-            catch (Exception ex)
-            {
-                Dialogo.Show("No se pudo exportar:\n\n" + ex.Message);
-            }
-        }
     }
 }
