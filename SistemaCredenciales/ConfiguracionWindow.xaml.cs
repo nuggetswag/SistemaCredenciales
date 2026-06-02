@@ -47,6 +47,10 @@ namespace SistemaCredenciales
             {
                 File.Copy(dialog.FileName, AppConfig.RutaLogo, true);
 
+                // Marcar con fecha actual: así el logo elegido siempre prevalece
+                // y no lo reemplaza ninguna copia más antigua.
+                File.SetLastWriteTime(AppConfig.RutaLogo, DateTime.Now);
+
                 ActualizarEstadoLogo();
 
                 // Refrescar el logo en la ventana principal al instante.

@@ -14,12 +14,10 @@
     <PackageReference Include="System.Data.OleDb" Version="10.0.8" />
   </ItemGroup>
 
+  <!-- El logo (logo.png) NO lo gestiona la compilación: lo elige el usuario en
+       Configuración y se guarda junto al .exe, para que persista al reabrir. -->
   <ItemGroup>
-    <!-- Logo por defecto; se copia junto al .exe. El usuario puede reemplazarlo
-         desde Configuración (que sobrescribe este logo.png en la carpeta de salida). -->
-    <Content Include="logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Remove="logo.png" />
   </ItemGroup>
 
 </Project>
