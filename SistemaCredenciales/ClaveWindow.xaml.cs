@@ -11,14 +11,27 @@ namespace SistemaCredenciales
     {
         public string Clave { get; private set; } = "";
 
-        public ClaveWindow(string mensaje = "")
+        /// <summary>True si el usuario pulsó "¿Olvidaste tu contraseña?".</summary>
+        public bool OlvideSolicitado { get; private set; }
+
+        public ClaveWindow(string mensaje = "", bool mostrarOlvide = false)
         {
             InitializeComponent();
 
             if (!string.IsNullOrEmpty(mensaje))
                 txtMensaje.Text = mensaje;
 
+            if (mostrarOlvide)
+                lnkOlvide.Visibility = Visibility.Visible;
+
             Loaded += (s, e) => pwd.Focus();
+        }
+
+        private void Olvide_Click(object sender, MouseButtonEventArgs e)
+        {
+            OlvideSolicitado = true;
+            DialogResult = false;
+            Close();
         }
 
         private void BtnAceptar_Click(object sender, RoutedEventArgs e)

@@ -376,14 +376,27 @@ namespace SistemaCredenciales
         private void BtnConfiguracion_Click(object sender, RoutedEventArgs e)
         {
             // Candado: para abrir Configuración hay que escribir la contraseña.
+            // Se muestra también la opción "¿Olvidaste tu contraseña?".
             var clave = new ClaveWindow(
-                "Escribe la contraseña para abrir Configuración.")
+                "Escribe la contraseña para abrir Configuración.",
+                mostrarOlvide: true)
             {
                 Owner = this
             };
 
-            if (clave.ShowDialog() != true)
+            bool acepto = clave.ShowDialog() == true;
+
+            if (!acepto)
+            {
+                // Si pidió restablecer, mandamos código al correo y, si lo logra,
+                // entra a Configuración con la contraseña nueva.
+                if (clave.OlvideSolicitado && Seguridad.RestablecerContrasena(this))
+                {
+                    new ConfiguracionWindow().ShowDialog();
+                    CargarDatos();
+                }
                 return;
+            }
 
             if (clave.Clave != AppConfig.Actual.ClaveMaestra)
             {

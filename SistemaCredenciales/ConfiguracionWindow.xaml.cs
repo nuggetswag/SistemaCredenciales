@@ -218,47 +218,8 @@ namespace SistemaCredenciales
 
         private void BtnCambiarPassword_Click(object sender, RoutedEventArgs e)
         {
-            AppConfig cfg = AppConfig.Actual;
-
-            if (!cfg.CorreoConfigurado())
-            {
-                Dialogo.Show(
-                    "Primero configura y verifica el correo de verificación.");
-                return;
-            }
-
-            if (!PedirCodigo(cfg.CorreoUsuario,
-                    "cambiar la contraseña de Configuración",
-                    "Te enviamos un código a tu correo. Escríbelo para cambiar la contraseña."))
-            {
-                return;
-            }
-
-            var p1 = new ClaveWindow("Escribe la NUEVA contraseña.") { Owner = this };
-            if (p1.ShowDialog() != true)
-                return;
-
-            if (string.IsNullOrWhiteSpace(p1.Clave))
-            {
-                Dialogo.Show("La contraseña no puede quedar vacía.");
-                return;
-            }
-
-            var p2 = new ClaveWindow("Repite la NUEVA contraseña.") { Owner = this };
-            if (p2.ShowDialog() != true)
-                return;
-
-            if (p1.Clave != p2.Clave)
-            {
-                Dialogo.Show("Las contraseñas no coinciden.");
-                return;
-            }
-
-            cfg.ClaveMaestra = p1.Clave;
-            cfg.Guardar();
-
-            Dialogo.Show("Contraseña cambiada. ✓", "Listo",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            // Mismo flujo que "olvidé mi contraseña": código al correo + nueva clave.
+            Seguridad.RestablecerContrasena(this);
         }
 
         /// <summary>
