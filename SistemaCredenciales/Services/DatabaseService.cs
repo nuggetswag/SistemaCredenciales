@@ -49,32 +49,48 @@ namespace SistemaCredenciales.Services
                 OleDbCommand command =
                     new OleDbCommand(query, connection);
 
-                OleDbDataReader reader =
-                    command.ExecuteReader();
-
-                using (SqliteConnection sqlConnection =
-                    sqlite.ObtenerConexion())
+                using (OleDbDataReader reader = command.ExecuteReader())
                 {
-                    sqlConnection.Open();
+                    // Detecta las columnas por su nombre (sin importar acentos ni
+                    // mayúsculas): matrícula / No. de empleado, nombre, apellidos,
+                    // vigencia. Así no importa cómo se llamen las columnas del .mdb.
+                    var mapa = DetectarColumnas(reader);
 
-                    while (reader.Read())
+                    if (mapa.Matricula < 0)
                     {
-                        var credencial = new CredencialImportada
-                        {
-                            Matricula = ValorTexto(reader, "IDWMATRICULA"),
-                            Nombre = ValorTexto(reader, "IDWNOMBRE"),
-                            Apellidos = ValorTexto(reader, "IDWAPELLIDOS"),
-                            Vigencia = ValorTexto(reader, "IDWVIGENCIA"),
-                            Escuela = escuela,
-                            Area = escuela
-                        };
+                        throw new Exception(
+                            "No se encontró una columna de matrícula o número de empleado.\n" +
+                            "Columnas encontradas: " +
+                            string.Join(", ", NombresColumnas(reader)));
+                    }
 
-                        if (InsertarSiNoExiste(
-                                sqlConnection,
-                                credencial,
-                                archivoOrigen))
+                    using (SqliteConnection sqlConnection =
+                        sqlite.ObtenerConexion())
+                    {
+                        sqlConnection.Open();
+
+                        while (reader.Read())
                         {
-                            insertadas++;
+                            string matricula = ValorPorIndice(reader, mapa.Matricula);
+
+                            if (string.IsNullOrWhiteSpace(matricula))
+                                continue;
+
+                            var credencial = new CredencialImportada
+                            {
+                                Matricula = matricula,
+                                Nombre = ValorPorIndice(reader, mapa.Nombre),
+                                Apellidos = ValorPorIndice(reader, mapa.Apellidos),
+                                Vigencia = ValorPorIndice(reader, mapa.Vigencia),
+                                Escuela = escuela,
+                                Area = escuela
+                            };
+
+                            if (InsertarSiNoExiste(
+                                    sqlConnection, credencial, archivoOrigen))
+                            {
+                                insertadas++;
+                            }
                         }
                     }
                 }
@@ -284,13 +300,17 @@ namespace SistemaCredenciales.Services
             return new MapaColumnas
             {
                 Matricula = BuscarColumna(nombres,
-                    "matricula", "idwmatricula", "id", "clave", "noid"),
+                    "matricula", "idwmatricula", "noempleado", "idwnoempleado",
+                    "numeroempleado", "numempleado", "numerodeempleado",
+                    "matriculaalumno"),
                 Nombre = BuscarColumna(nombres,
-                    "nombre", "idwnombre", "nombres", "nombrealumno"),
+                    "nombre", "idwnombre", "nombres", "nombrealumno",
+                    "nombreempleado"),
                 Apellidos = BuscarColumna(nombres,
                     "apellidos", "idwapellidos", "apellido", "apellidopaterno"),
                 Vigencia = BuscarColumna(nombres,
-                    "vigencia", "idwvigencia", "vence", "fechavigencia")
+                    "vigencia", "idwvigencia", "vence", "fechavigencia",
+                    "validohasta")
             };
         }
 
@@ -306,13 +326,24 @@ namespace SistemaCredenciales.Services
 
         private int BuscarColumna(List<string> nombres, params string[] alias)
         {
-            for (int i = 0; i < nombres.Count; i++)
-            {
-                string normalizado = Normalizar(nombres[i]);
+            var normalizados = nombres.Select(Normalizar).ToList();
 
+            // 1) Coincidencia EXACTA (evita confundir "IDWNOMBRE" con matrícula).
+            for (int i = 0; i < normalizados.Count; i++)
+            {
                 foreach (string a in alias)
                 {
-                    if (normalizado == a || normalizado.Contains(a))
+                    if (normalizados[i] == a)
+                        return i;
+                }
+            }
+
+            // 2) Coincidencia por "contiene" (para prefijos como IDW, sufijos, etc.).
+            for (int i = 0; i < normalizados.Count; i++)
+            {
+                foreach (string a in alias)
+                {
+                    if (a.Length >= 4 && normalizados[i].Contains(a))
                         return i;
                 }
             }
@@ -354,22 +385,6 @@ namespace SistemaCredenciales.Services
             return valor == null || valor == DBNull.Value
                 ? ""
                 : valor.ToString()?.Trim() ?? "";
-        }
-
-        private string ValorTexto(IDataRecord reader, string columna)
-        {
-            try
-            {
-                object valor = reader[columna];
-
-                return valor == null || valor == DBNull.Value
-                    ? ""
-                    : valor.ToString()?.Trim() ?? "";
-            }
-            catch
-            {
-                return "";
-            }
         }
 
         private bool InsertarSiNoExiste(
