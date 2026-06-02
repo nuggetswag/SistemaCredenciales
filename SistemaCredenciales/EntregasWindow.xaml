@@ -31,7 +31,7 @@
 
             <ComboBox x:Name="cmbEscuela"
                       Width="260"
-                      Height="32"
+                      Height="38"
                       VerticalContentAlignment="Center"
                       SelectionChanged="cmbEscuela_SelectionChanged"/>
 
@@ -43,13 +43,13 @@
                        Foreground="#16A34A"/>
 
             <Button Content="💾 Exportar CSV"
-                    Height="32"
+                    Height="38"
                     Width="140"
                     Margin="20,0,0,0"
                     Click="BtnExportar_Click"/>
 
             <Button Content="👁 Ver firma"
-                    Height="32"
+                    Height="38"
                     Width="120"
                     Margin="10,0,0,0"
                     Click="BtnVerFirma_Click"/>

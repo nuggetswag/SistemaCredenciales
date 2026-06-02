@@ -27,7 +27,7 @@
                        Margin="0,0,0,4"/>
 
             <ComboBox x:Name="cmbTipo"
-                      Height="34"
+                      Height="38"
                       VerticalContentAlignment="Center"
                       SelectionChanged="cmbTipo_SelectionChanged"/>
 
@@ -36,7 +36,7 @@
                        Margin="0,15,0,4"/>
 
             <ComboBox x:Name="cmbEscuela"
-                      Height="34"
+                      Height="38"
                       VerticalContentAlignment="Center"/>
 
             <!-- RANGO DE FECHAS (solo para reporte por fechas) -->

@@ -24,7 +24,7 @@
 
             <TextBlock Text="Nombre de la institución (para los reportes)"
                        FontWeight="Bold" Margin="0,0,0,4"/>
-            <TextBox x:Name="txtInstitucion" Height="32"
+            <TextBox x:Name="txtInstitucion" Height="38"
                      VerticalContentAlignment="Center"/>
 
             <TextBlock Text="Carpeta donde buscar las escuelas (.mdb / .xlsx)"
@@ -34,9 +34,9 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="txtBusqueda" Height="32"
+                <TextBox x:Name="txtBusqueda" Height="38"
                          VerticalContentAlignment="Center"/>
-                <Button Grid.Column="1" Content="..." Width="40" Height="32"
+                <Button Grid.Column="1" Content="..." Width="40" Height="38"
                         Margin="8,0,0,0" Click="BtnBuscarCarpeta_Click" Tag="busqueda"/>
             </Grid>
             <TextBlock Text="Déjala en el escritorio para que funcione en cualquier PC."
@@ -49,9 +49,9 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="txtFirmas" Height="32"
+                <TextBox x:Name="txtFirmas" Height="38"
                          VerticalContentAlignment="Center"/>
-                <Button Grid.Column="1" Content="..." Width="40" Height="32"
+                <Button Grid.Column="1" Content="..." Width="40" Height="38"
                         Margin="8,0,0,0" Click="BtnBuscarCarpeta_Click" Tag="firmas"/>
             </Grid>
 
@@ -62,9 +62,9 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="txtReportes" Height="32"
+                <TextBox x:Name="txtReportes" Height="38"
                          VerticalContentAlignment="Center"/>
-                <Button Grid.Column="1" Content="..." Width="40" Height="32"
+                <Button Grid.Column="1" Content="..." Width="40" Height="38"
                         Margin="8,0,0,0" Click="BtnBuscarCarpeta_Click" Tag="reportes"/>
             </Grid>
 

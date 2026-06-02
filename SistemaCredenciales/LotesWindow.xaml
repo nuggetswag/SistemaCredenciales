@@ -36,7 +36,7 @@
                                Margin="0,0,0,4"/>
 
                     <TextBox x:Name="txtEscuela"
-                             Height="32"
+                             Height="38"
                              VerticalContentAlignment="Center"/>
 
                     <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
@@ -96,7 +96,7 @@
                                Margin="0,0,0,4"/>
 
                     <ComboBox x:Name="cmbEscuelaExport"
-                              Height="32"
+                              Height="38"
                               VerticalContentAlignment="Center"/>
 
                     <TextBlock Text="Estado"
@@ -104,7 +104,7 @@
                                Margin="0,15,0,4"/>
 
                     <ComboBox x:Name="cmbEstadoExport"
-                              Height="32"
+                              Height="38"
                               VerticalContentAlignment="Center"/>
 
                     <Button Content="💾 EXPORTAR A CSV (Excel)"
