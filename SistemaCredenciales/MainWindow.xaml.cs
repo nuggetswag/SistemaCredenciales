@@ -54,10 +54,14 @@ namespace SistemaCredenciales
                 if (!File.Exists(AppConfig.RutaLogo))
                     return;
 
+                // OnLoad: lee el archivo de inmediato y no lo deja bloqueado.
+                // IgnoreImageCache: vuelve a leer del disco (si cambia el logo,
+                // se ve el nuevo y no la versión vieja en caché).
                 var bmp = new BitmapImage();
                 bmp.BeginInit();
+                bmp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
                 bmp.CacheOption = BitmapCacheOption.OnLoad;
-                bmp.UriSource = new Uri(AppConfig.RutaLogo);
+                bmp.UriSource = new Uri(AppConfig.RutaLogo, UriKind.Absolute);
                 bmp.EndInit();
                 bmp.Freeze();
 
