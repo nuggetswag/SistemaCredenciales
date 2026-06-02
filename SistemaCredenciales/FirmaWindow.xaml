@@ -1,0 +1,82 @@
+﻿<Window x:Class="SistemaCredenciales.FirmaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        PreviewKeyDown="Window_KeyDown"
+        Title="Captura de Firma"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="#111827">
+
+    <Grid>
+
+        <Border Background="White"
+                CornerRadius="10"
+                Margin="10">
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+
+                <!-- TITULO -->
+                <TextBlock Text="FIRME DENTRO DEL RECUADRO"
+                           FontSize="30"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="#111827"/>
+
+                <!-- AREA FIRMA -->
+                <Border Grid.Row="1"
+                        Margin="5"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="3"
+                        CornerRadius="10">
+
+                    <InkCanvas x:Name="inkFirma"
+                               Background="White"
+                               EditingMode="Ink"/>
+
+                </Border>
+
+                <!-- BOTONES -->
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,0,5">
+
+                    <Button Content="CANCELAR"
+                            Width="160"
+                            Height="50"
+                            FontSize="18"
+                            Margin="0,0,20,0"
+                            Click="BtnCancelar_Click"/>
+
+                    <Button Content="REPETIR FIRMA"
+                            Width="200"
+                            Height="50"
+                            FontSize="18"
+                            Margin="0,0,20,0"
+                            Click="BtnLimpiar_Click"/>
+
+                    <Button Content="GUARDAR FIRMA"
+                            Width="220"
+                            Height="50"
+                            FontSize="18"
+                            FontWeight="Bold"
+                            Click="BtnGuardar_Click"/>
+
+                </StackPanel>
+
+            </Grid>
+
+        </Border>
+
+    </Grid>
+
+</Window>

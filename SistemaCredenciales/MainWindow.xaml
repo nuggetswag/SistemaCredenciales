@@ -1,0 +1,305 @@
+﻿<Window x:Class="SistemaCredenciales.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SistemaCredenciales"
+        mc:Ignorable="d"
+        Title="Sistema de Control de Credenciales"
+        Height="700"
+        Width="1200"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- SIDEBAR -->
+        <Border Background="#1E293B" Grid.Column="0">
+
+            <StackPanel Margin="10">
+
+                <TextBlock Text="CHUNDEC 2026"
+                           FontSize="24"
+                           Foreground="White"
+                           Margin="10"
+                           FontWeight="Bold"/>
+
+                <Button Content="🏫 Escuelas"
+        Height="45"
+        Margin="5"
+        Click="BtnEscuelas_Click"/>
+
+                <Button Content="📦 Lotes"
+                        Height="45"
+                        Margin="5"/>
+
+                <Button Content="🖊 Entregas"
+                        Height="45"
+                        Margin="5"/>
+
+                <Button Content="📊 Reportes"
+        Height="45"
+        Margin="5"
+        Click="BtnReportes_Click"/>
+
+                <Button Content="⚙ Configuración"
+                        Height="45"
+                        Margin="5"/>
+
+            </StackPanel>
+
+        </Border>
+
+        <!-- CONTENIDO -->
+        <Grid Grid.Column="1" Background="#F1F5F9">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="120"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Background="White"
+                    Grid.Row="0">
+
+                <Grid>
+
+                    <TextBlock Text="Controlizashion de Credenciales"
+                               FontSize="24"
+                               VerticalAlignment="Center"
+                               Margin="20,0,0,0"
+                               FontWeight="SemiBold"/>
+
+                </Grid>
+
+            </Border>
+
+
+            <!-- DASHBOARD -->
+            <Grid Grid.Row="1" Margin="20">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- TOTAL -->
+                <Button Background="#2563EB"
+        BorderThickness="0"
+        Margin="5"
+        Click="BtnTotal_Click">
+
+                    <StackPanel VerticalAlignment="Center">
+
+                        <TextBlock Text="TOTAL"
+                   Foreground="White"
+                   FontSize="18"
+                   HorizontalAlignment="Center"/>
+
+                        <TextBlock x:Name="txtTotal"
+                   Text="0"
+                   Foreground="White"
+                   FontSize="34"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+                <!-- ENTREGADAS -->
+                <Button Grid.Column="1"
+        Background="#16A34A"
+        BorderThickness="0"
+        Margin="5"
+        Click="BtnEntregadas_Click">
+
+                    <StackPanel VerticalAlignment="Center">
+
+                        <TextBlock Text="ENTREGADAS"
+                   Foreground="White"
+                   FontSize="18"
+                   HorizontalAlignment="Center"/>
+
+                        <TextBlock x:Name="txtEntregadas"
+                   Text="0"
+                   Foreground="White"
+                   FontSize="34"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+
+                <!-- PENDIENTES -->
+                <Button Grid.Column="2"
+        Background="#DC2626"
+        BorderThickness="0"
+        Margin="5"
+        Click="BtnPendientes_Click">
+
+                    <StackPanel VerticalAlignment="Center">
+
+                        <TextBlock Text="PENDIENTES"
+                   Foreground="White"
+                   FontSize="18"
+                   HorizontalAlignment="Center"/>
+
+                        <TextBlock x:Name="txtPendientes"
+                   Text="0"
+                   Foreground="White"
+                   FontSize="34"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+                <!-- AVANCE -->
+                <Border Grid.Column="3"
+            Background="#7C3AED"
+            CornerRadius="15"
+            Margin="5">
+
+                    <StackPanel VerticalAlignment="Center">
+
+                        <TextBlock Text="% AVANCE"
+                       Foreground="White"
+                       FontSize="18"
+                       HorizontalAlignment="Center"/>
+
+                        <TextBlock x:Name="txtAvance"
+                       Text="0%"
+                       Foreground="White"
+                       FontSize="34"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+            <!-- TABLA -->
+            <Grid Grid.Row="2" Margin="20">
+                    <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+              
+
+                <!-- BUSCADOR Y BOTÓN -->
+                <StackPanel Orientation="Horizontal"
+            Grid.Row="0"
+            VerticalAlignment="Center">
+
+                    <!-- BUSCADOR -->
+                    <TextBox x:Name="txtBuscar"
+         Height="35"
+         Width="300"
+         GotFocus="txtBuscar_GotFocus"
+         LostFocus="txtBuscar_LostFocus"
+         TextChanged="txtBuscar_TextChanged"/>
+
+                    <!-- ENTREGAR -->
+                    <Button Content="ENTREGAR"
+            Width="120"
+            Height="35"
+            Margin="10,0,0,0"
+            Click="BtnEntregar_Click"/>               
+           
+
+                
+
+                <!-- CANCELAR -->
+                <Button Content="CANCELAR ENTREGA"
+        Width="180"
+        Height="35"
+        Margin="10,0,0,0"
+        Click="BtnCancelarEntrega_Click"/>
+                    
+                </StackPanel>
+
+
+                
+                
+                <!-- TABLA -->
+                <DataGrid x:Name="dgEscuelas"
+          Grid.Row="1"
+          Margin="0,20,0,0"
+          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                    MouseDoubleClick="dgEscuelas_MouseDoubleClick">
+
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="Matrícula"
+                        Binding="{Binding Matricula}"
+                        Width="120"/>
+
+                        <DataGridTextColumn Header="Nombre"
+                        Binding="{Binding Nombre}"
+                        Width="150"/>
+
+                        <DataGridTextColumn Header="Apellidos"
+                        Binding="{Binding Apellidos}"
+                        Width="220"/>
+
+                        <DataGridTextColumn Header="Escuela"
+                        Binding="{Binding Escuela}"
+                        Width="120"/>
+
+                        <DataGridTextColumn Header="Área"
+                        Binding="{Binding Area}"
+                        Width="120"/>
+
+                        <DataGridCheckBoxColumn Header="Entregada"
+                            Binding="{Binding Entregada}"
+                            Width="100"/>
+
+                    </DataGrid.Columns>
+
+
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding Entregada}"
+                             Value="True">
+
+                                    <Setter Property="Background"
+                            Value="LightGreen"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+                    </DataGrid.RowStyle>
+
+                </DataGrid>
+                
+                
+                
+                
+
+            </Grid>
+
+        </Grid>
+
+    </Grid>
+
+</Window>
