@@ -50,24 +50,27 @@
                             HorizontalAlignment="Right"
                             Margin="0,0,0,5">
 
-                    <Button Content="CANCELAR"
+                    <Button Content="✖ CANCELAR"
+                            Style="{StaticResource GhostButton}"
                             Width="160"
-                            Height="50"
-                            FontSize="18"
-                            Margin="0,0,20,0"
+                            Height="52"
+                            FontSize="17"
+                            Margin="0,0,16,0"
                             Click="BtnCancelar_Click"/>
 
-                    <Button Content="REPETIR FIRMA"
-                            Width="200"
-                            Height="50"
-                            FontSize="18"
-                            Margin="0,0,20,0"
+                    <Button Content="↺ REPETIR FIRMA"
+                            Style="{StaticResource GhostButton}"
+                            Width="210"
+                            Height="52"
+                            FontSize="17"
+                            Margin="0,0,16,0"
                             Click="BtnLimpiar_Click"/>
 
-                    <Button Content="GUARDAR FIRMA"
-                            Width="220"
-                            Height="50"
-                            FontSize="18"
+                    <Button Content="✔ GUARDAR FIRMA"
+                            Style="{StaticResource SuccessButton}"
+                            Width="230"
+                            Height="52"
+                            FontSize="17"
                             FontWeight="Bold"
                             Click="BtnGuardar_Click"/>
 
