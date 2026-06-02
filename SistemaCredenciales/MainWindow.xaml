@@ -35,11 +35,13 @@
 
                 <Button Content="📦 Lotes"
                         Height="45"
-                        Margin="5"/>
+                        Margin="5"
+                        Click="BtnLotes_Click"/>
 
                 <Button Content="🖊 Entregas"
                         Height="45"
-                        Margin="5"/>
+                        Margin="5"
+                        Click="BtnEntregas_Click"/>
 
                 <Button Content="📊 Reportes"
         Height="45"
@@ -48,7 +50,8 @@
 
                 <Button Content="⚙ Configuración"
                         Height="45"
-                        Margin="5"/>
+                        Margin="5"
+                        Click="BtnConfiguracion_Click"/>
 
             </StackPanel>
 
@@ -69,11 +72,35 @@
 
                 <Grid>
 
-                    <TextBlock Text="Controlizashion de Credenciales"
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Control de Credenciales"
+                               Grid.Column="0"
                                FontSize="24"
                                VerticalAlignment="Center"
                                Margin="20,0,0,0"
                                FontWeight="SemiBold"/>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="0,0,20,0">
+
+                        <TextBlock Text="Escuela:"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   FontSize="14"/>
+
+                        <ComboBox x:Name="cmbEscuelas"
+                                  Width="220"
+                                  Height="32"
+                                  VerticalContentAlignment="Center"
+                                  SelectionChanged="cmbEscuelas_SelectionChanged"/>
+
+                    </StackPanel>
 
                 </Grid>
 
@@ -259,15 +286,15 @@
 
                         <DataGridTextColumn Header="Escuela"
                         Binding="{Binding Escuela}"
-                        Width="120"/>
+                        Width="150"/>
 
-                        <DataGridTextColumn Header="Área"
-                        Binding="{Binding Area}"
-                        Width="120"/>
+                        <DataGridTextColumn Header="Vigencia"
+                        Binding="{Binding Vigencia}"
+                        Width="110"/>
 
                         <DataGridCheckBoxColumn Header="Entregada"
                             Binding="{Binding Entregada}"
-                            Width="100"/>
+                            Width="90"/>
 
                     </DataGrid.Columns>
 

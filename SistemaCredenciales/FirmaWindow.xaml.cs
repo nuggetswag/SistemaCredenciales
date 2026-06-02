@@ -65,9 +65,7 @@ namespace SistemaCredenciales
                 BitmapFrame.Create(render));
 
             string carpetaFirmas =
-    Path.Combine(
-        AppDomain.CurrentDomain.BaseDirectory,
-        "Firmas");
+                AppConfig.Actual.CarpetaFirmas;
 
             Directory.CreateDirectory(carpetaFirmas);
 

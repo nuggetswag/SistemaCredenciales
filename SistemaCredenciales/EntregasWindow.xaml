@@ -1,0 +1,90 @@
+<Window x:Class="SistemaCredenciales.EntregasWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Entregas por escuela"
+        Height="650"
+        Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#F1F5F9">
+
+    <Grid Margin="20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="🖊 Entregas realizadas"
+                   FontSize="28"
+                   FontWeight="Bold"
+                   Foreground="#1E293B"/>
+
+        <!-- FILTROS -->
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+
+            <TextBlock Text="Escuela:"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+
+            <ComboBox x:Name="cmbEscuela"
+                      Width="260"
+                      Height="32"
+                      VerticalContentAlignment="Center"
+                      SelectionChanged="cmbEscuela_SelectionChanged"/>
+
+            <TextBlock x:Name="txtConteo"
+                       Text=""
+                       VerticalAlignment="Center"
+                       Margin="20,0,0,0"
+                       FontWeight="Bold"
+                       Foreground="#16A34A"/>
+
+            <Button Content="💾 Exportar CSV"
+                    Height="32"
+                    Width="140"
+                    Margin="20,0,0,0"
+                    Click="BtnExportar_Click"/>
+
+            <Button Content="👁 Ver firma"
+                    Height="32"
+                    Width="120"
+                    Margin="10,0,0,0"
+                    Click="BtnVerFirma_Click"/>
+
+        </StackPanel>
+
+        <!-- TABLA -->
+        <DataGrid x:Name="dgEntregas"
+                  Grid.Row="2"
+                  Margin="0,10,0,0"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  MouseDoubleClick="dgEntregas_MouseDoubleClick">
+
+            <DataGrid.Columns>
+
+                <DataGridTextColumn Header="Matrícula"
+                    Binding="{Binding Matricula}" Width="120"/>
+
+                <DataGridTextColumn Header="Nombre"
+                    Binding="{Binding Nombre}" Width="160"/>
+
+                <DataGridTextColumn Header="Apellidos"
+                    Binding="{Binding Apellidos}" Width="220"/>
+
+                <DataGridTextColumn Header="Escuela"
+                    Binding="{Binding Escuela}" Width="150"/>
+
+                <DataGridTextColumn Header="Fecha de entrega"
+                    Binding="{Binding FechaEntrega}" Width="160"/>
+
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+    </Grid>
+
+</Window>

@@ -1,8 +1,12 @@
-﻿using Microsoft.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 using SistemaCredenciales.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.OleDb;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 
 namespace SistemaCredenciales.Services
 {
@@ -11,13 +15,28 @@ namespace SistemaCredenciales.Services
         private SQLiteService sqlite =
             new SQLiteService();
 
-        public void LeerMDB(
+        public const string FormatoFecha = "yyyy-MM-dd HH:mm:ss";
+
+        // ----------------------------------------------------------------
+        //  IMPORTACIÓN DESDE ACCESS (.mdb)
+        // ----------------------------------------------------------------
+
+        /// <summary>
+        /// Lee una base de Access y agrega sus credenciales a la escuela indicada.
+        /// Devuelve cuántas credenciales nuevas se insertaron.
+        /// </summary>
+        public int LeerMDB(
             string archivoMDB,
             string tablaMDB,
-            string area)
+            string escuela)
         {
             string accessConnectionString =
                 $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={archivoMDB};";
+
+            string archivoOrigen =
+                System.IO.Path.GetFileName(archivoMDB);
+
+            int insertadas = 0;
 
             using (OleDbConnection connection =
                 new OleDbConnection(accessConnectionString))
@@ -25,7 +44,7 @@ namespace SistemaCredenciales.Services
                 connection.Open();
 
                 string query =
-                    $"SELECT * FROM {tablaMDB}";
+                    $"SELECT * FROM [{tablaMDB}]";
 
                 OleDbCommand command =
                     new OleDbCommand(query, connection);
@@ -33,103 +52,416 @@ namespace SistemaCredenciales.Services
                 OleDbDataReader reader =
                     command.ExecuteReader();
 
-                while (reader.Read())
+                using (SqliteConnection sqlConnection =
+                    sqlite.ObtenerConexion())
                 {
-                    string matricula =
-                        reader["IDWMATRICULA"].ToString();
+                    sqlConnection.Open();
 
-                    string nombre =
-                        reader["IDWNOMBRE"].ToString();
-
-                    string apellidos =
-                        reader["IDWAPELLIDOS"].ToString();
-
-                    string vigencia =
-                        reader["IDWVIGENCIA"].ToString();
-
-                    using (SqliteConnection sqlConnection =
-                        sqlite.ObtenerConexion())
+                    while (reader.Read())
                     {
-                        sqlConnection.Open();
-
-                        string verificar =
-                            "SELECT COUNT(*) FROM CredencialesImportadas WHERE Matricula = @Matricula";
-
-                        SqliteCommand verificarCommand =
-                            new SqliteCommand(
-                                verificar,
-                                sqlConnection);
-
-                        verificarCommand.Parameters.AddWithValue(
-                            "@Matricula",
-                            matricula);
-
-                        int existe =
-                            Convert.ToInt32(
-                                verificarCommand.ExecuteScalar());
-
-                        if (existe == 0)
+                        var credencial = new CredencialImportada
                         {
-                            string insert =
-                                @"INSERT INTO CredencialesImportadas
-                                (
-                                    Matricula,
-                                    Nombre,
-                                    Apellidos,
-                                    Vigencia,
-                                    Escuela,
-                                    Area
-                                )
-                                VALUES
-                                (
-                                    @Matricula,
-                                    @Nombre,
-                                    @Apellidos,
-                                    @Vigencia,
-                                    @Escuela,
-                                    @Area
-                                )";
+                            Matricula = ValorTexto(reader, "IDWMATRICULA"),
+                            Nombre = ValorTexto(reader, "IDWNOMBRE"),
+                            Apellidos = ValorTexto(reader, "IDWAPELLIDOS"),
+                            Vigencia = ValorTexto(reader, "IDWVIGENCIA"),
+                            Escuela = escuela,
+                            Area = escuela
+                        };
 
-                            SqliteCommand insertCommand =
-                                new SqliteCommand(
-                                    insert,
-                                    sqlConnection);
-
-                            insertCommand.Parameters.AddWithValue(
-                                "@Matricula",
-                                matricula);
-
-                            insertCommand.Parameters.AddWithValue(
-                                "@Nombre",
-                                nombre);
-
-                            insertCommand.Parameters.AddWithValue(
-                                "@Apellidos",
-                                apellidos);
-
-                            insertCommand.Parameters.AddWithValue(
-                                "@Vigencia",
-                                vigencia);
-
-                            insertCommand.Parameters.AddWithValue(
-                                "@Escuela",
-                                "CUDEC");
-
-                            insertCommand.Parameters.AddWithValue(
-                                "@Area",
-                                area);
-
-                            insertCommand.ExecuteNonQuery();
+                        if (InsertarSiNoExiste(
+                                sqlConnection,
+                                credencial,
+                                archivoOrigen))
+                        {
+                            insertadas++;
                         }
                     }
                 }
             }
+
+            return insertadas;
         }
 
-        public List<CredencialImportada> ObtenerCredenciales()
+        /// <summary>
+        /// Devuelve el nombre de la primera tabla "real" de una base de Access.
+        /// </summary>
+        public string ObtenerTablaMDB(string rutaMDB)
         {
-            List<CredencialImportada> lista =
-                new List<CredencialImportada>();
+            string connectionString =
+                $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={rutaMDB};";
+
+            using (OleDbConnection connection =
+                new OleDbConnection(connectionString))
+            {
+                connection.Open();
+
+                DataTable tablas =
+                    connection.GetSchema("Tables");
+
+                foreach (DataRow row in tablas.Rows)
+                {
+                    string nombreTabla =
+                        row["TABLE_NAME"]?.ToString() ?? "";
+
+                    if (nombreTabla != "" && !nombreTabla.StartsWith("MSys"))
+                        return nombreTabla;
+                }
+            }
+
+            return "";
+        }
+
+        // ----------------------------------------------------------------
+        //  IMPORTACIÓN DESDE EXCEL (.xlsx / .xls)
+        // ----------------------------------------------------------------
+
+        /// <summary>
+        /// Importa credenciales desde un Excel detectando automáticamente las
+        /// columnas (Matrícula, Nombre, Apellidos, Vigencia) por su encabezado,
+        /// sin importar acentos ni mayúsculas. Devuelve cuántas se insertaron.
+        /// </summary>
+        public int ImportarExcel(string rutaExcel, string escuela)
+        {
+            string extension =
+                System.IO.Path.GetExtension(rutaExcel).ToLower();
+
+            string propiedades =
+                extension == ".xls"
+                    ? "Excel 8.0;HDR=YES;IMEX=1"
+                    : "Excel 12.0 Xml;HDR=YES;IMEX=1";
+
+            string connectionString =
+                $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={rutaExcel};" +
+                $"Extended Properties=\"{propiedades}\";";
+
+            string archivoOrigen =
+                System.IO.Path.GetFileName(rutaExcel);
+
+            int insertadas = 0;
+
+            using (OleDbConnection connection =
+                new OleDbConnection(connectionString))
+            {
+                connection.Open();
+
+                string hoja = ObtenerPrimeraHoja(connection);
+
+                OleDbCommand command =
+                    new OleDbCommand($"SELECT * FROM [{hoja}]", connection);
+
+                OleDbDataReader reader =
+                    command.ExecuteReader();
+
+                // Detectar a qué columna del Excel corresponde cada campo.
+                var mapa = DetectarColumnas(reader);
+
+                if (mapa.Matricula < 0)
+                {
+                    throw new Exception(
+                        "No se encontró una columna de matrícula en el Excel. " +
+                        "Columnas encontradas: " +
+                        string.Join(", ", NombresColumnas(reader)));
+                }
+
+                using (SqliteConnection sqlConnection =
+                    sqlite.ObtenerConexion())
+                {
+                    sqlConnection.Open();
+
+                    while (reader.Read())
+                    {
+                        string matricula =
+                            ValorPorIndice(reader, mapa.Matricula);
+
+                        if (string.IsNullOrWhiteSpace(matricula))
+                            continue;
+
+                        var credencial = new CredencialImportada
+                        {
+                            Matricula = matricula,
+                            Nombre = ValorPorIndice(reader, mapa.Nombre),
+                            Apellidos = ValorPorIndice(reader, mapa.Apellidos),
+                            Vigencia = ValorPorIndice(reader, mapa.Vigencia),
+                            Escuela = escuela,
+                            Area = escuela
+                        };
+
+                        if (InsertarSiNoExiste(
+                                sqlConnection,
+                                credencial,
+                                archivoOrigen))
+                        {
+                            insertadas++;
+                        }
+                    }
+                }
+            }
+
+            return insertadas;
+        }
+
+        /// <summary>
+        /// Texto que describe qué columnas detectó el Excel, para mostrarlo
+        /// como vista previa antes de importar.
+        /// </summary>
+        public string DescribirColumnasExcel(string rutaExcel)
+        {
+            string extension =
+                System.IO.Path.GetExtension(rutaExcel).ToLower();
+
+            string propiedades =
+                extension == ".xls"
+                    ? "Excel 8.0;HDR=YES;IMEX=1"
+                    : "Excel 12.0 Xml;HDR=YES;IMEX=1";
+
+            string connectionString =
+                $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={rutaExcel};" +
+                $"Extended Properties=\"{propiedades}\";";
+
+            using (OleDbConnection connection =
+                new OleDbConnection(connectionString))
+            {
+                connection.Open();
+
+                string hoja = ObtenerPrimeraHoja(connection);
+
+                OleDbCommand command =
+                    new OleDbCommand($"SELECT * FROM [{hoja}]", connection);
+
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    var nombres = NombresColumnas(reader);
+                    var mapa = DetectarColumnas(reader);
+
+                    string Describir(int indice) =>
+                        indice >= 0 && indice < nombres.Count
+                            ? nombres[indice]
+                            : "(no encontrada)";
+
+                    return
+                        $"Hoja: {hoja}\n" +
+                        $"Matrícula  → {Describir(mapa.Matricula)}\n" +
+                        $"Nombre     → {Describir(mapa.Nombre)}\n" +
+                        $"Apellidos  → {Describir(mapa.Apellidos)}\n" +
+                        $"Vigencia   → {Describir(mapa.Vigencia)}";
+                }
+            }
+        }
+
+        private string ObtenerPrimeraHoja(OleDbConnection connection)
+        {
+            DataTable hojas =
+                connection.GetSchema("Tables");
+
+            foreach (DataRow row in hojas.Rows)
+            {
+                string nombre = row["TABLE_NAME"]?.ToString() ?? "";
+
+                // Las hojas reales terminan en "$"; se ignoran los rangos con nombre.
+                if (nombre.EndsWith("$") || nombre.EndsWith("$'"))
+                    return nombre.Trim('\'');
+            }
+
+            if (hojas.Rows.Count > 0)
+                return hojas.Rows[0]["TABLE_NAME"]?.ToString() ?? "";
+
+            throw new Exception("El archivo de Excel no tiene hojas legibles.");
+        }
+
+        private struct MapaColumnas
+        {
+            public int Matricula;
+            public int Nombre;
+            public int Apellidos;
+            public int Vigencia;
+        }
+
+        private MapaColumnas DetectarColumnas(OleDbDataReader reader)
+        {
+            var nombres = NombresColumnas(reader);
+
+            return new MapaColumnas
+            {
+                Matricula = BuscarColumna(nombres,
+                    "matricula", "idwmatricula", "id", "clave", "noid"),
+                Nombre = BuscarColumna(nombres,
+                    "nombre", "idwnombre", "nombres", "nombrealumno"),
+                Apellidos = BuscarColumna(nombres,
+                    "apellidos", "idwapellidos", "apellido", "apellidopaterno"),
+                Vigencia = BuscarColumna(nombres,
+                    "vigencia", "idwvigencia", "vence", "fechavigencia")
+            };
+        }
+
+        private List<string> NombresColumnas(OleDbDataReader reader)
+        {
+            var nombres = new List<string>();
+
+            for (int i = 0; i < reader.FieldCount; i++)
+                nombres.Add(reader.GetName(i));
+
+            return nombres;
+        }
+
+        private int BuscarColumna(List<string> nombres, params string[] alias)
+        {
+            for (int i = 0; i < nombres.Count; i++)
+            {
+                string normalizado = Normalizar(nombres[i]);
+
+                foreach (string a in alias)
+                {
+                    if (normalizado == a || normalizado.Contains(a))
+                        return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static string Normalizar(string texto)
+        {
+            if (string.IsNullOrEmpty(texto))
+                return "";
+
+            string sinAcentos = texto.Normalize(NormalizationForm.FormD);
+
+            var sb = new StringBuilder();
+
+            foreach (char c in sinAcentos)
+            {
+                UnicodeCategory categoria =
+                    CharUnicodeInfo.GetUnicodeCategory(c);
+
+                if (categoria == UnicodeCategory.NonSpacingMark)
+                    continue;
+
+                if (char.IsLetterOrDigit(c))
+                    sb.Append(char.ToLowerInvariant(c));
+            }
+
+            return sb.ToString();
+        }
+
+        private string ValorPorIndice(OleDbDataReader reader, int indice)
+        {
+            if (indice < 0 || indice >= reader.FieldCount)
+                return "";
+
+            object valor = reader.GetValue(indice);
+
+            return valor == null || valor == DBNull.Value
+                ? ""
+                : valor.ToString()?.Trim() ?? "";
+        }
+
+        private string ValorTexto(IDataRecord reader, string columna)
+        {
+            try
+            {
+                object valor = reader[columna];
+
+                return valor == null || valor == DBNull.Value
+                    ? ""
+                    : valor.ToString()?.Trim() ?? "";
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        private bool InsertarSiNoExiste(
+            SqliteConnection sqlConnection,
+            CredencialImportada credencial,
+            string archivoOrigen)
+        {
+            string verificar =
+                @"SELECT COUNT(*) FROM CredencialesImportadas
+                  WHERE Matricula = @Matricula AND Escuela = @Escuela";
+
+            using (SqliteCommand verificarCommand =
+                new SqliteCommand(verificar, sqlConnection))
+            {
+                verificarCommand.Parameters.AddWithValue(
+                    "@Matricula", credencial.Matricula);
+
+                verificarCommand.Parameters.AddWithValue(
+                    "@Escuela", credencial.Escuela);
+
+                int existe =
+                    Convert.ToInt32(verificarCommand.ExecuteScalar());
+
+                if (existe > 0)
+                    return false;
+            }
+
+            string insert =
+                @"INSERT INTO CredencialesImportadas
+                    (Matricula, Nombre, Apellidos, Vigencia, Escuela, Area, ArchivoOrigen)
+                  VALUES
+                    (@Matricula, @Nombre, @Apellidos, @Vigencia, @Escuela, @Area, @ArchivoOrigen)";
+
+            using (SqliteCommand insertCommand =
+                new SqliteCommand(insert, sqlConnection))
+            {
+                insertCommand.Parameters.AddWithValue("@Matricula", credencial.Matricula);
+                insertCommand.Parameters.AddWithValue("@Nombre", credencial.Nombre ?? "");
+                insertCommand.Parameters.AddWithValue("@Apellidos", credencial.Apellidos ?? "");
+                insertCommand.Parameters.AddWithValue("@Vigencia", credencial.Vigencia ?? "");
+                insertCommand.Parameters.AddWithValue("@Escuela", credencial.Escuela ?? "");
+                insertCommand.Parameters.AddWithValue("@Area", credencial.Area ?? "");
+                insertCommand.Parameters.AddWithValue("@ArchivoOrigen", archivoOrigen ?? "");
+
+                insertCommand.ExecuteNonQuery();
+            }
+
+            return true;
+        }
+
+        // ----------------------------------------------------------------
+        //  CONSULTAS
+        // ----------------------------------------------------------------
+
+        /// <summary>
+        /// Obtiene las credenciales. Si se indica una escuela, solo devuelve las
+        /// de esa escuela; si es null o vacío, devuelve todas.
+        /// </summary>
+        public List<CredencialImportada> ObtenerCredenciales(string? escuela = null)
+        {
+            return ObtenerCredencialesFiltradas(escuela, null, null, null);
+        }
+
+        /// <summary>
+        /// Consulta flexible usada por la lista principal, Entregas y Reportes.
+        /// </summary>
+        public List<CredencialImportada> ObtenerCredencialesFiltradas(
+            string? escuela,
+            bool? entregada,
+            DateTime? desde,
+            DateTime? hasta)
+        {
+            var lista = new List<CredencialImportada>();
+
+            var condiciones = new List<string>();
+
+            if (!string.IsNullOrEmpty(escuela))
+                condiciones.Add("Escuela = @Escuela");
+
+            if (entregada.HasValue)
+                condiciones.Add("Entregada = @Entregada");
+
+            if (desde.HasValue)
+                condiciones.Add("FechaEntrega >= @Desde");
+
+            if (hasta.HasValue)
+                condiciones.Add("FechaEntrega <= @Hasta");
+
+            string where =
+                condiciones.Count > 0
+                    ? " WHERE " + string.Join(" AND ", condiciones)
+                    : "";
 
             using (SqliteConnection connection =
                 sqlite.ObtenerConexion())
@@ -137,38 +469,97 @@ namespace SistemaCredenciales.Services
                 connection.Open();
 
                 string query =
-                    "SELECT * FROM CredencialesImportadas";
+                    "SELECT * FROM CredencialesImportadas" + where +
+                    " ORDER BY Escuela, Apellidos, Nombre";
 
-                SqliteCommand command =
-                    new SqliteCommand(query, connection);
-
-                SqliteDataReader reader =
-                    command.ExecuteReader();
-
-                while (reader.Read())
+                using (SqliteCommand command =
+                    new SqliteCommand(query, connection))
                 {
-                    lista.Add(new CredencialImportada
+                    if (!string.IsNullOrEmpty(escuela))
+                        command.Parameters.AddWithValue("@Escuela", escuela);
+
+                    if (entregada.HasValue)
+                        command.Parameters.AddWithValue(
+                            "@Entregada", entregada.Value ? 1 : 0);
+
+                    if (desde.HasValue)
+                        command.Parameters.AddWithValue(
+                            "@Desde",
+                            desde.Value.ToString("yyyy-MM-dd 00:00:00"));
+
+                    if (hasta.HasValue)
+                        command.Parameters.AddWithValue(
+                            "@Hasta",
+                            hasta.Value.ToString("yyyy-MM-dd 23:59:59"));
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        Matricula = reader["Matricula"].ToString(),
-                        Nombre = reader["Nombre"].ToString(),
-                        Apellidos = reader["Apellidos"].ToString(),
-                        Vigencia = reader["Vigencia"].ToString(),
-                        Escuela = reader["Escuela"].ToString(),
-                        Area = reader["Area"].ToString(),
-                        Entregada =
-                            Convert.ToBoolean(
-                                reader["Entregada"])
-                    });
+                        while (reader.Read())
+                            lista.Add(LeerCredencial(reader));
+                    }
                 }
             }
 
             return lista;
         }
 
-        public void CambiarEstadoEntrega(
-            int id,
-            bool entregada)
+        private CredencialImportada LeerCredencial(SqliteDataReader reader)
+        {
+            return new CredencialImportada
+            {
+                Id = Convert.ToInt32(reader["Id"]),
+                Matricula = reader["Matricula"]?.ToString() ?? "",
+                Nombre = reader["Nombre"]?.ToString() ?? "",
+                Apellidos = reader["Apellidos"]?.ToString() ?? "",
+                Vigencia = reader["Vigencia"]?.ToString() ?? "",
+                Escuela = reader["Escuela"]?.ToString() ?? "",
+                Area = reader["Area"]?.ToString() ?? "",
+                Entregada = Convert.ToBoolean(reader["Entregada"]),
+                FechaEntrega =
+                    reader["FechaEntrega"] == DBNull.Value
+                        ? ""
+                        : reader["FechaEntrega"]?.ToString() ?? "",
+                RutaFirma =
+                    reader["RutaFirma"] == DBNull.Value
+                        ? ""
+                        : reader["RutaFirma"]?.ToString() ?? ""
+            };
+        }
+
+        /// <summary>
+        /// Lista de escuelas (nombres distintos) que existen en la base.
+        /// </summary>
+        public List<string> ObtenerEscuelas()
+        {
+            var lista = new List<string>();
+
+            using (SqliteConnection connection =
+                sqlite.ObtenerConexion())
+            {
+                connection.Open();
+
+                string query =
+                    @"SELECT DISTINCT Escuela FROM CredencialesImportadas
+                      WHERE Escuela IS NOT NULL AND Escuela <> ''
+                      ORDER BY Escuela";
+
+                using (SqliteCommand command =
+                    new SqliteCommand(query, connection))
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                        lista.Add(reader["Escuela"]?.ToString() ?? "");
+                }
+            }
+
+            return lista;
+        }
+
+        // ----------------------------------------------------------------
+        //  ENTREGAS Y FIRMAS
+        // ----------------------------------------------------------------
+
+        public void CambiarEstadoEntrega(int id, bool entregada)
         {
             using (SqliteConnection connection =
                 sqlite.ObtenerConexion())
@@ -177,51 +568,36 @@ namespace SistemaCredenciales.Services
 
                 string query =
                     @"UPDATE CredencialesImportadas
-                    SET Entregada = @Entregada
-                    WHERE Id = @Id";
+                      SET Entregada = @Entregada,
+                          FechaEntrega = @FechaEntrega
+                      WHERE Id = @Id";
 
-                SqliteCommand command =
-                    new SqliteCommand(query, connection);
+                using (SqliteCommand command =
+                    new SqliteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue(
+                        "@Entregada", entregada ? 1 : 0);
 
-                command.Parameters.AddWithValue(
-                    "@Entregada",
-                    entregada ? 1 : 0);
+                    command.Parameters.AddWithValue(
+                        "@FechaEntrega",
+                        entregada
+                            ? (object)DateTime.Now.ToString(FormatoFecha)
+                            : DBNull.Value);
 
-                command.Parameters.AddWithValue(
-                    "@Id",
-                    id);
+                    command.Parameters.AddWithValue("@Id", id);
 
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
             }
         }
 
-        public void GuardarRutaFirma(
-            int id,
-            string rutaFirma)
+        public void GuardarRutaFirma(int id, string rutaFirma)
         {
-            using (SqliteConnection connection =
-                sqlite.ObtenerConexion())
-            {
-                connection.Open();
-
-                string query =
-                    @"UPDATE CredencialesImportadas
-                    SET RutaFirma = @RutaFirma
-                    WHERE Id = @Id";
-
-                SqliteCommand command =
-                    new SqliteCommand(query, connection);
-
-                command.Parameters.AddWithValue(
-                    "@RutaFirma",
-                    rutaFirma);
-
-                command.Parameters.AddWithValue(
-                    "@Id",
-                    id);
-
-                command.ExecuteNonQuery();
-            }
+            EjecutarActualizacion(
+                @"UPDATE CredencialesImportadas
+                  SET RutaFirma = @RutaFirma WHERE Id = @Id",
+                ("@RutaFirma", rutaFirma),
+                ("@Id", id));
         }
 
         public string ObtenerRutaFirma(int id)
@@ -232,51 +608,48 @@ namespace SistemaCredenciales.Services
                 connection.Open();
 
                 string query =
-                    @"SELECT RutaFirma
-                    FROM CredencialesImportadas
-                    WHERE Id = @Id";
+                    @"SELECT RutaFirma FROM CredencialesImportadas WHERE Id = @Id";
 
-                SqliteCommand command =
-                    new SqliteCommand(query, connection);
-
-                command.Parameters.AddWithValue(
-                    "@Id",
-                    id);
-
-                object resultado =
-                    command.ExecuteScalar();
-
-                if (resultado != null)
+                using (SqliteCommand command =
+                    new SqliteCommand(query, connection))
                 {
-                    return resultado.ToString();
-                }
+                    command.Parameters.AddWithValue("@Id", id);
 
-                return "";
+                    object? resultado = command.ExecuteScalar();
+
+                    return resultado == null || resultado == DBNull.Value
+                        ? ""
+                        : resultado.ToString() ?? "";
+                }
             }
         }
 
         public void LimpiarRutaFirma(int id)
+        {
+            EjecutarActualizacion(
+                @"UPDATE CredencialesImportadas
+                  SET RutaFirma = NULL WHERE Id = @Id",
+                ("@Id", id));
+        }
+
+        private void EjecutarActualizacion(
+            string query,
+            params (string nombre, object valor)[] parametros)
         {
             using (SqliteConnection connection =
                 sqlite.ObtenerConexion())
             {
                 connection.Open();
 
-                string query =
-                    @"UPDATE CredencialesImportadas
-                    SET RutaFirma = NULL
-                    WHERE Id = @Id";
+                using (SqliteCommand command =
+                    new SqliteCommand(query, connection))
+                {
+                    foreach (var (nombre, valor) in parametros)
+                        command.Parameters.AddWithValue(nombre, valor);
 
-                SqliteCommand command =
-                    new SqliteCommand(query, connection);
-
-                command.Parameters.AddWithValue(
-                    "@Id",
-                    id);
-
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
             }
         }
     }
 }
-

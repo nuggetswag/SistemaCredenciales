@@ -1,0 +1,78 @@
+<Window x:Class="SistemaCredenciales.ReportesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Reportes"
+        Height="520"
+        Width="620"
+        WindowStartupLocation="CenterScreen"
+        Background="#F1F5F9">
+
+    <Grid Margin="25">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="📊 Generador de reportes"
+                   FontSize="28"
+                   FontWeight="Bold"
+                   Foreground="#1E293B"/>
+
+        <StackPanel Grid.Row="1" Margin="0,10,0,0">
+
+            <TextBlock Text="Tipo de reporte"
+                       FontWeight="Bold"
+                       Margin="0,0,0,4"/>
+
+            <ComboBox x:Name="cmbTipo"
+                      Height="34"
+                      VerticalContentAlignment="Center"
+                      SelectionChanged="cmbTipo_SelectionChanged"/>
+
+            <TextBlock Text="Escuela"
+                       FontWeight="Bold"
+                       Margin="0,15,0,4"/>
+
+            <ComboBox x:Name="cmbEscuela"
+                      Height="34"
+                      VerticalContentAlignment="Center"/>
+
+            <!-- RANGO DE FECHAS (solo para reporte por fechas) -->
+            <StackPanel x:Name="panelFechas"
+                        Orientation="Horizontal"
+                        Margin="0,15,0,0"
+                        Visibility="Collapsed">
+
+                <StackPanel>
+                    <TextBlock Text="Desde" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <DatePicker x:Name="dpDesde" Width="160"/>
+                </StackPanel>
+
+                <StackPanel Margin="20,0,0,0">
+                    <TextBlock Text="Hasta" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <DatePicker x:Name="dpHasta" Width="160"/>
+                </StackPanel>
+
+            </StackPanel>
+
+            <CheckBox x:Name="chkFirma"
+                      Content="Incluir columna de firma (Sí / No)"
+                      Margin="0,18,0,0"/>
+
+        </StackPanel>
+
+        <Button Grid.Row="2"
+                Content="📄 GENERAR PDF"
+                Width="220"
+                Height="46"
+                HorizontalAlignment="Left"
+                Background="#7C3AED"
+                Foreground="White"
+                FontWeight="Bold"
+                Click="BtnGenerar_Click"/>
+
+    </Grid>
+
+</Window>

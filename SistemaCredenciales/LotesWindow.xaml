@@ -1,0 +1,133 @@
+<Window x:Class="SistemaCredenciales.LotesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Lotes — Importar / Exportar"
+        Height="600"
+        Width="780"
+        WindowStartupLocation="CenterScreen"
+        Background="#F1F5F9">
+
+    <Grid Margin="20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="📦 Lotes masivos"
+                   FontSize="28"
+                   FontWeight="Bold"
+                   Foreground="#1E293B"/>
+
+        <TabControl Grid.Row="1" Margin="0,10,0,0">
+
+            <!-- ============ IMPORTAR ============ -->
+            <TabItem Header="Importar">
+
+                <StackPanel Margin="15">
+
+                    <TextBlock Text="Escuela / destino"
+                               FontWeight="Bold"
+                               Margin="0,0,0,4"/>
+
+                    <TextBlock Text="Se detecta del nombre del archivo. Puedes corregirla antes de importar."
+                               Foreground="Gray"
+                               FontSize="11"
+                               Margin="0,0,0,4"/>
+
+                    <TextBox x:Name="txtEscuela"
+                             Height="32"
+                             VerticalContentAlignment="Center"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+
+                        <Button Content="📄 Seleccionar Excel (.xlsx)"
+                                Width="220"
+                                Height="40"
+                                Click="BtnSeleccionarExcel_Click"/>
+
+                        <Button Content="🗄 Seleccionar Access (.mdb)"
+                                Width="220"
+                                Height="40"
+                                Margin="15,0,0,0"
+                                Click="BtnSeleccionarAccess_Click"/>
+
+                    </StackPanel>
+
+                    <Border Background="White"
+                            BorderBrush="#CBD5E1"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Margin="0,15,0,0"
+                            Padding="10"
+                            MinHeight="120">
+
+                        <TextBlock x:Name="txtPreview"
+                                   Text="Selecciona un archivo para ver el detalle..."
+                                   Foreground="#334155"
+                                   FontFamily="Consolas"
+                                   TextWrapping="Wrap"/>
+
+                    </Border>
+
+                    <Button x:Name="btnImportar"
+                            Content="✅ IMPORTAR"
+                            Width="200"
+                            Height="45"
+                            Margin="0,15,0,0"
+                            HorizontalAlignment="Left"
+                            Background="#16A34A"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            IsEnabled="False"
+                            Click="BtnImportar_Click"/>
+
+                </StackPanel>
+
+            </TabItem>
+
+            <!-- ============ EXPORTAR ============ -->
+            <TabItem Header="Exportar">
+
+                <StackPanel Margin="15">
+
+                    <TextBlock Text="Escuela"
+                               FontWeight="Bold"
+                               Margin="0,0,0,4"/>
+
+                    <ComboBox x:Name="cmbEscuelaExport"
+                              Height="32"
+                              VerticalContentAlignment="Center"/>
+
+                    <TextBlock Text="Estado"
+                               FontWeight="Bold"
+                               Margin="0,15,0,4"/>
+
+                    <ComboBox x:Name="cmbEstadoExport"
+                              Height="32"
+                              VerticalContentAlignment="Center"/>
+
+                    <Button Content="💾 EXPORTAR A CSV (Excel)"
+                            Width="260"
+                            Height="45"
+                            Margin="0,20,0,0"
+                            HorizontalAlignment="Left"
+                            Background="#2563EB"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            Click="BtnExportar_Click"/>
+
+                    <TextBlock Text="El archivo se guarda en la carpeta de Reportes y se abre al terminar."
+                               Foreground="Gray"
+                               FontSize="11"
+                               Margin="0,10,0,0"/>
+
+                </StackPanel>
+
+            </TabItem>
+
+        </TabControl>
+
+    </Grid>
+
+</Window>
