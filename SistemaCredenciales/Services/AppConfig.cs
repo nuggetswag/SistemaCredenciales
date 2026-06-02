@@ -21,8 +21,20 @@ namespace SistemaCredenciales.Services
 
         public string NombreInstitucion { get; set; } = "";
 
-        /// <summary>Contraseña para acciones sensibles (marcado masivo).</summary>
+        /// <summary>Contraseña para acciones sensibles (marcado masivo, login).</summary>
         public string ClaveMaestra { get; set; } = "";
+
+        /// <summary>Correo (Gmail) que envía y recibe los códigos de verificación.</summary>
+        public string CorreoUsuario { get; set; } = "";
+
+        /// <summary>Contraseña de aplicación del correo, cifrada (DPAPI).</summary>
+        public string CorreoAppPasswordProtegida { get; set; } = "";
+
+        public string SmtpHost { get; set; } = "smtp.gmail.com";
+
+        public int SmtpPuerto { get; set; } = 587;
+
+        public bool SmtpSsl { get; set; } = true;
 
         private static AppConfig? _actual;
 
@@ -118,6 +130,12 @@ namespace SistemaCredenciales.Services
 
             if (string.IsNullOrWhiteSpace(ClaveMaestra))
                 ClaveMaestra = def.ClaveMaestra;
+
+            if (string.IsNullOrWhiteSpace(SmtpHost))
+                SmtpHost = "smtp.gmail.com";
+
+            if (SmtpPuerto <= 0)
+                SmtpPuerto = 587;
         }
 
         public void Guardar()
@@ -142,6 +160,19 @@ namespace SistemaCredenciales.Services
             Directory.CreateDirectory(CarpetaFirmas);
             Directory.CreateDirectory(CarpetaReportes);
         }
+
+        // ---- Correo / contraseña de aplicación (cifrada) ----
+
+        public string ObtenerAppPassword()
+            => ProteccionService.Desproteger(CorreoAppPasswordProtegida);
+
+        public void EstablecerAppPassword(string textoPlano)
+            => CorreoAppPasswordProtegida = ProteccionService.Proteger(textoPlano);
+
+        /// <summary>True si hay correo y contraseña de aplicación configurados.</summary>
+        public bool CorreoConfigurado()
+            => !string.IsNullOrWhiteSpace(CorreoUsuario)
+               && !string.IsNullOrWhiteSpace(CorreoAppPasswordProtegida);
 
         /// <summary>
         /// Carpetas donde se buscarán archivos de escuelas (.mdb / .xlsx).
