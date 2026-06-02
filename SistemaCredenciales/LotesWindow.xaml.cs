@@ -104,10 +104,8 @@ namespace SistemaCredenciales
                 string tabla = db.ObtenerTablaMDB(archivoSeleccionado);
 
                 txtPreview.Text =
-                    $"Archivo: {Path.GetFileName(archivoSeleccionado)}\n" +
-                    $"Tabla detectada: {tabla}\n\n" +
-                    "Se importarán las columnas IDWMATRICULA, IDWNOMBRE, " +
-                    "IDWAPELLIDOS, IDWVIGENCIA.";
+                    $"Archivo: {Path.GetFileName(archivoSeleccionado)}\n\n" +
+                    db.DescribirColumnasMDB(archivoSeleccionado, tabla);
 
                 btnImportar.IsEnabled = !string.IsNullOrEmpty(tabla);
             }

@@ -265,6 +265,42 @@ namespace SistemaCredenciales.Services
             }
         }
 
+        /// <summary>
+        /// Describe las columnas reales de una tabla de Access y a qué campo
+        /// mapea cada una (para diagnóstico antes de importar).
+        /// </summary>
+        public string DescribirColumnasMDB(string rutaMDB, string tablaMDB)
+        {
+            string cs =
+                $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={rutaMDB};";
+
+            using (var connection = new OleDbConnection(cs))
+            {
+                connection.Open();
+
+                using (var command =
+                    new OleDbCommand($"SELECT * FROM [{tablaMDB}]", connection))
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    var nombres = NombresColumnas(reader);
+                    var mapa = DetectarColumnas(reader);
+
+                    string Describir(int indice) =>
+                        indice >= 0 && indice < nombres.Count
+                            ? nombres[indice]
+                            : "(no encontrada)";
+
+                    return
+                        $"Tabla: {tablaMDB}\n" +
+                        $"Columnas: {string.Join(", ", nombres)}\n\n" +
+                        $"Matrícula  → {Describir(mapa.Matricula)}\n" +
+                        $"Nombre     → {Describir(mapa.Nombre)}\n" +
+                        $"Apellidos  → {Describir(mapa.Apellidos)}\n" +
+                        $"Vigencia   → {Describir(mapa.Vigencia)}";
+                }
+            }
+        }
+
         private string ObtenerPrimeraHoja(OleDbConnection connection)
         {
             DataTable hojas =
