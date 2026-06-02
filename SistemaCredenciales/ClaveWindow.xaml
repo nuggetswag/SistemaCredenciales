@@ -54,12 +54,14 @@
             <TextBlock x:Name="lnkOlvide"
                        Text="¿Olvidaste tu contraseña?"
                        Foreground="#2563EB"
+                       Background="Transparent"
                        FontSize="12"
                        Cursor="Hand"
                        Margin="2,10,0,0"
+                       HorizontalAlignment="Left"
                        TextDecorations="Underline"
                        Visibility="Collapsed"
-                       MouseLeftButtonUp="Olvide_Click"/>
+                       MouseLeftButtonDown="Olvide_Click"/>
 
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right"

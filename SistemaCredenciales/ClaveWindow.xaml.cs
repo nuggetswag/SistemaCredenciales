@@ -29,6 +29,9 @@ namespace SistemaCredenciales
 
         private void Olvide_Click(object sender, MouseButtonEventArgs e)
         {
+            // Evita que el clic se lo lleve el arrastre de la ventana (DragMove).
+            e.Handled = true;
+
             OlvideSolicitado = true;
             DialogResult = false;
             Close();
