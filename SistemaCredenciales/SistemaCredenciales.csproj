@@ -14,4 +14,12 @@
     <PackageReference Include="System.Data.OleDb" Version="10.0.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Logo por defecto; se copia junto al .exe. El usuario puede reemplazarlo
+         desde Configuración (que sobrescribe este logo.png en la carpeta de salida). -->
+    <Content Include="logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
