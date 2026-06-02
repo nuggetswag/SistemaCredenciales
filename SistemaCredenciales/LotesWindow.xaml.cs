@@ -126,7 +126,7 @@ namespace SistemaCredenciales
 
             if (string.IsNullOrEmpty(escuela))
             {
-                MessageBox.Show("Escribe el nombre de la escuela.");
+                Dialogo.Show("Escribe el nombre de la escuela.");
                 return;
             }
 
@@ -146,11 +146,11 @@ namespace SistemaCredenciales
                 }
                 else
                 {
-                    MessageBox.Show("Primero selecciona un archivo.");
+                    Dialogo.Show("Primero selecciona un archivo.");
                     return;
                 }
 
-                MessageBox.Show(
+                Dialogo.Show(
                     insertadas > 0
                         ? $"Importación terminada: {insertadas} credenciales nuevas en \"{escuela}\"."
                         : $"No se agregaron credenciales nuevas (ya existían en \"{escuela}\").");
@@ -159,7 +159,7 @@ namespace SistemaCredenciales
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                Dialogo.Show(
                     "Ocurrió un error al importar:\n\n" + ex.Message);
             }
         }
@@ -187,7 +187,7 @@ namespace SistemaCredenciales
 
             if (datos.Count == 0)
             {
-                MessageBox.Show("No hay credenciales para exportar con ese filtro.");
+                Dialogo.Show("No hay credenciales para exportar con ese filtro.");
                 return;
             }
 
@@ -214,7 +214,7 @@ namespace SistemaCredenciales
                 var export = new ExportService();
                 string ruta = export.ExportarCsv(datos, dialog.FileName);
 
-                MessageBox.Show($"Se exportaron {datos.Count} credenciales.");
+                Dialogo.Show($"Se exportaron {datos.Count} credenciales.");
 
                 Process.Start(new ProcessStartInfo
                 {
@@ -224,7 +224,7 @@ namespace SistemaCredenciales
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudo exportar:\n\n" + ex.Message);
+                Dialogo.Show("No se pudo exportar:\n\n" + ex.Message);
             }
         }
 

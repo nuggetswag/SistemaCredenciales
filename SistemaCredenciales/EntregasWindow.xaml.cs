@@ -72,7 +72,7 @@ namespace SistemaCredenciales
         {
             if (dgEntregas.SelectedItem == null)
             {
-                MessageBox.Show("Selecciona una entrega.");
+                Dialogo.Show("Selecciona una entrega.");
                 return;
             }
 
@@ -83,7 +83,7 @@ namespace SistemaCredenciales
 
             if (string.IsNullOrEmpty(rutaFirma) || !File.Exists(rutaFirma))
             {
-                MessageBox.Show("No se encontró el archivo de firma.");
+                Dialogo.Show("No se encontró el archivo de firma.");
                 return;
             }
 
@@ -98,7 +98,7 @@ namespace SistemaCredenciales
         {
             if (entregas.Count == 0)
             {
-                MessageBox.Show("No hay entregas para exportar.");
+                Dialogo.Show("No hay entregas para exportar.");
                 return;
             }
 
@@ -116,7 +116,7 @@ namespace SistemaCredenciales
                 var export = new ExportService();
                 export.ExportarCsv(entregas, ruta);
 
-                MessageBox.Show($"Se exportaron {entregas.Count} entregas.");
+                Dialogo.Show($"Se exportaron {entregas.Count} entregas.");
 
                 Process.Start(new ProcessStartInfo
                 {
@@ -126,7 +126,7 @@ namespace SistemaCredenciales
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudo exportar:\n\n" + ex.Message);
+                Dialogo.Show("No se pudo exportar:\n\n" + ex.Message);
             }
         }
     }

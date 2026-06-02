@@ -51,13 +51,13 @@ namespace SistemaCredenciales
         {
             if (string.IsNullOrWhiteSpace(txtInstitucion.Text))
             {
-                MessageBox.Show("Escribe el nombre de la institución.");
+                Dialogo.Show("Escribe el nombre de la institución.");
                 return;
             }
 
             if (!Directory.Exists(txtBusqueda.Text))
             {
-                MessageBox.Show("La carpeta de búsqueda no existe.");
+                Dialogo.Show("La carpeta de búsqueda no existe.");
                 return;
             }
 
@@ -71,7 +71,7 @@ namespace SistemaCredenciales
             cfg.Guardar();
             cfg.AsegurarCarpetas();
 
-            MessageBox.Show("Configuración guardada.");
+            Dialogo.Show("Configuración guardada.");
 
             Close();
         }

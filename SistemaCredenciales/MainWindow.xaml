@@ -273,7 +273,8 @@
                                 <Setter Property="Height" Value="36"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Entregada}" Value="True">
-                                        <Setter Property="Background" Value="#DCFCE7"/>
+                                        <Setter Property="Background" Value="#86EFAC"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

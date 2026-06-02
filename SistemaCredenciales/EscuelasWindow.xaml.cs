@@ -43,7 +43,7 @@ namespace SistemaCredenciales
 
             if (archivosMDB.Count == 0)
             {
-                MessageBox.Show(
+                Dialogo.Show(
                     "No se encontraron archivos .mdb en la carpeta de búsqueda.\n\n" +
                     "Coloca las bases de las escuelas en el escritorio, o cambia la " +
                     "carpeta de búsqueda en Configuración.");
@@ -84,7 +84,7 @@ namespace SistemaCredenciales
 
                 if (string.IsNullOrEmpty(tablaMDB))
                 {
-                    MessageBox.Show(
+                    Dialogo.Show(
                         "No se encontró ninguna tabla de datos en esa base.");
 
                     return;
@@ -95,7 +95,7 @@ namespace SistemaCredenciales
                 // Mostrar SOLO esta escuela en la ventana principal.
                 MainWindow.Instancia.SeleccionarEscuela(escuela);
 
-                MessageBox.Show(
+                Dialogo.Show(
                     insertadas > 0
                         ? $"{escuela}: se agregaron {insertadas} credenciales nuevas. 😎"
                         : $"{escuela} ya estaba cargada (sin credenciales nuevas).");
@@ -104,7 +104,7 @@ namespace SistemaCredenciales
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                Dialogo.Show(
                     "No se pudo leer la base de la escuela.\n\n" + ex.Message);
             }
         }

@@ -41,7 +41,7 @@ namespace SistemaCredenciales
         {
             if (inkFirma.Strokes.Count == 0)
             {
-                MessageBox.Show(
+                Dialogo.Show(
                     "Debes capturar una firma.");
 
                 return;
@@ -86,7 +86,7 @@ namespace SistemaCredenciales
             db.GuardarRutaFirma(idCredencial, ruta);
             FirmaGuardada = true;
 
-            MessageBox.Show(
+            Dialogo.Show(
                 "Firma guardada correctamente.");
 
             Close();

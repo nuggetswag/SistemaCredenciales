@@ -194,7 +194,7 @@ namespace SistemaCredenciales
         {
             if (dgEscuelas.SelectedItem == null)
             {
-                MessageBox.Show("Selecciona una credencial.");
+                Dialogo.Show("Selecciona una credencial.");
                 return;
             }
 
@@ -203,7 +203,7 @@ namespace SistemaCredenciales
 
             if (credencial.Entregada)
             {
-                MessageBox.Show("La credencial ya está entregada.");
+                Dialogo.Show("La credencial ya está entregada.");
                 return;
             }
 
@@ -216,13 +216,13 @@ namespace SistemaCredenciales
 
             if (!firma.FirmaGuardada)
             {
-                MessageBox.Show("Entrega cancelada.");
+                Dialogo.Show("Entrega cancelada.");
                 return;
             }
 
             db.CambiarEstadoEntrega(credencial.Id, true);
 
-            MessageBox.Show("Credencial entregada.");
+            Dialogo.Show("Credencial entregada.");
 
             CargarDatos();
         }
@@ -231,7 +231,7 @@ namespace SistemaCredenciales
         {
             if (dgEscuelas.SelectedItem == null)
             {
-                MessageBox.Show("Selecciona una credencial.");
+                Dialogo.Show("Selecciona una credencial.");
                 return;
             }
 
@@ -240,12 +240,12 @@ namespace SistemaCredenciales
 
             if (!credencial.Entregada)
             {
-                MessageBox.Show("La credencial ya está pendiente.");
+                Dialogo.Show("La credencial ya está pendiente.");
                 return;
             }
 
             MessageBoxResult resultado =
-                MessageBox.Show(
+                Dialogo.Show(
                     "¿Seguro que deseas cancelar esta entrega?",
                     "Confirmar",
                     MessageBoxButton.YesNo,
@@ -264,7 +264,7 @@ namespace SistemaCredenciales
             db.LimpiarRutaFirma(credencial.Id);
             db.CambiarEstadoEntrega(credencial.Id, false);
 
-            MessageBox.Show("Entrega cancelada.");
+            Dialogo.Show("Entrega cancelada.");
 
             CargarDatos();
         }
@@ -284,13 +284,13 @@ namespace SistemaCredenciales
 
             if (string.IsNullOrEmpty(rutaFirma))
             {
-                MessageBox.Show("Esta credencial no tiene firma.");
+                Dialogo.Show("Esta credencial no tiene firma.");
                 return;
             }
 
             if (!System.IO.File.Exists(rutaFirma))
             {
-                MessageBox.Show("No se encontró el archivo de firma.");
+                Dialogo.Show("No se encontró el archivo de firma.");
                 return;
             }
 
@@ -337,13 +337,13 @@ namespace SistemaCredenciales
         {
             if (escuelaActual == "")
             {
-                MessageBox.Show(
+                Dialogo.Show(
                     "Primero selecciona una escuela en la lista de arriba " +
                     "(no se puede quitar \"Todas\").");
                 return;
             }
 
-            MessageBoxResult resultado = MessageBox.Show(
+            MessageBoxResult resultado = Dialogo.Show(
                 $"¿Quitar la escuela \"{escuelaActual}\" y TODAS sus credenciales?\n\n" +
                 "Esto borra también sus firmas. No se puede deshacer.",
                 "Quitar escuela",
@@ -356,7 +356,7 @@ namespace SistemaCredenciales
             DatabaseService db = new DatabaseService();
             int eliminadas = db.EliminarEscuela(escuelaActual);
 
-            MessageBox.Show($"Se quitó \"{escuelaActual}\" ({eliminadas} credenciales).");
+            Dialogo.Show($"Se quitó \"{escuelaActual}\" ({eliminadas} credenciales).");
 
             escuelaActual = "";
             CargarDatos();

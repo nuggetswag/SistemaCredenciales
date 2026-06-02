@@ -77,7 +77,7 @@ namespace SistemaCredenciales
             }
             catch (Exception ex)
             {
-                MessageBox.Show("No se pudo generar el reporte:\n\n" + ex.Message);
+                Dialogo.Show("No se pudo generar el reporte:\n\n" + ex.Message);
             }
         }
 
@@ -127,7 +127,7 @@ namespace SistemaCredenciales
 
                 if (desde == null || hasta == null)
                 {
-                    MessageBox.Show("Selecciona el rango de fechas.");
+                    Dialogo.Show("Selecciona el rango de fechas.");
                     return null;
                 }
 
@@ -143,7 +143,7 @@ namespace SistemaCredenciales
 
             if (datos.Count == 0)
             {
-                MessageBox.Show("No hay credenciales para ese filtro.");
+                Dialogo.Show("No hay credenciales para ese filtro.");
                 return null;
             }
 
@@ -198,7 +198,7 @@ namespace SistemaCredenciales
 
             if (todas.Count == 0)
             {
-                MessageBox.Show("No hay credenciales para resumir.");
+                Dialogo.Show("No hay credenciales para resumir.");
                 return null;
             }
 
