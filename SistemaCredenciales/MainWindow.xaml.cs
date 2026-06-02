@@ -1,10 +1,13 @@
 using SistemaCredenciales.Models;
 using SistemaCredenciales.Reports;
 using SistemaCredenciales.Services;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace SistemaCredenciales
 {
@@ -33,9 +36,48 @@ namespace SistemaCredenciales
             // junto al ejecutable desde el primer arranque.
             AppConfig.Actual.AsegurarCarpetas();
 
+            CargarLogo();
+
             txtBuscar.Text = "Buscar matrícula o nombre...";
 
             CargarDatos();
+        }
+
+        /// <summary>
+        /// Muestra el logo (logo.png junto al .exe) si existe; si no, deja el
+        /// texto de respaldo. Se carga en memoria para no bloquear el archivo.
+        /// </summary>
+        private void CargarLogo()
+        {
+            try
+            {
+                if (!File.Exists(AppConfig.RutaLogo))
+                    return;
+
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.UriSource = new Uri(AppConfig.RutaLogo);
+                bmp.EndInit();
+                bmp.Freeze();
+
+                imgLogo.Source = bmp;
+                imgLogo.Visibility = Visibility.Visible;
+                logoFallback.Visibility = Visibility.Collapsed;
+            }
+            catch
+            {
+                // Si el logo no se puede leer, se queda el texto de respaldo.
+            }
+        }
+
+        /// <summary>Recarga el logo (lo llama Configuración al cambiarlo).</summary>
+        public void RecargarLogo()
+        {
+            imgLogo.Source = null;
+            imgLogo.Visibility = Visibility.Collapsed;
+            logoFallback.Visibility = Visibility.Visible;
+            CargarLogo();
         }
 
         // ----------------------------------------------------------------
@@ -330,6 +372,58 @@ namespace SistemaCredenciales
         private void BtnConfiguracion_Click(object sender, RoutedEventArgs e)
         {
             new ConfiguracionWindow().ShowDialog();
+            CargarDatos();
+        }
+
+        private void BtnMasivo_Click(object sender, RoutedEventArgs e)
+        {
+            var clave = new ClaveWindow(
+                "Esta acción marca como ENTREGADAS (sin firma) todas las " +
+                "credenciales pendientes de la vista actual. Escribe la contraseña.")
+            {
+                Owner = this
+            };
+
+            if (clave.ShowDialog() != true)
+                return;
+
+            if (clave.Clave != AppConfig.Actual.ClaveMaestra)
+            {
+                Dialogo.Show("Contraseña incorrecta.", "Acceso denegado",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            int pendientes = todasLasCredenciales.Count(x => !x.Entregada);
+
+            if (pendientes == 0)
+            {
+                Dialogo.Show("No hay credenciales pendientes en esta vista.");
+                return;
+            }
+
+            string ambito =
+                escuelaActual == ""
+                    ? "TODAS las escuelas"
+                    : $"la escuela \"{escuelaActual}\"";
+
+            MessageBoxResult r = Dialogo.Show(
+                $"Se marcarán como entregadas (sin firma) {pendientes} credenciales " +
+                $"pendientes de {ambito}.\n\n¿Continuar?",
+                "Marcar masivo",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (r != MessageBoxResult.Yes)
+                return;
+
+            string? filtro = escuelaActual == "" ? null : escuelaActual;
+
+            DatabaseService db = new DatabaseService();
+            int n = db.MarcarTodasEntregadas(filtro);
+
+            Dialogo.Show($"Listo: {n} credenciales marcadas como entregadas.");
+
             CargarDatos();
         }
 

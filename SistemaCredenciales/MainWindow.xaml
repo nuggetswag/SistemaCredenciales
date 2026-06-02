@@ -29,13 +29,21 @@
                 <!-- LOGO / TÍTULO -->
                 <StackPanel DockPanel.Dock="Top">
 
-                    <Border Width="56" Height="56"
-                            CornerRadius="14"
-                            Background="#2563EB"
+                    <Border Background="White"
+                            CornerRadius="12"
+                            Padding="12,10"
                             HorizontalAlignment="Left">
-                        <TextBlock Text="🎓" FontSize="28"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
+                        <Grid>
+                            <Image x:Name="imgLogo"
+                                   Stretch="Uniform"
+                                   MaxHeight="46"
+                                   MaxWidth="180"
+                                   Visibility="Collapsed"/>
+                            <TextBlock x:Name="logoFallback"
+                                       FontSize="24"
+                                       FontWeight="Bold"
+                                       Foreground="#1E40AF" HorizontalAlignment="Left" Width="78"><Run Text="CUDE"/><Run Text="C"/></TextBlock>
+                        </Grid>
                     </Border>
 
                     <TextBlock Text="CHUNDEC 2026"
@@ -44,10 +52,9 @@
                                FontWeight="Bold"
                                Margin="2,14,0,0"/>
 
-                    <TextBlock Text="Control de credenciales"
+                    <TextBlock
                                FontSize="12"
-                               Foreground="#94A3B8"
-                               Margin="2,2,0,0"/>
+                               Foreground="#94A3B8"><Run Language="es-mx" Text="Derechos reservados Ing. Alexis Rod © "/></TextBlock>
 
                     <Border Height="1" Background="#334155" Margin="0,18,0,14"/>
 
@@ -244,6 +251,12 @@
                                     Height="38" MinWidth="170"
                                     Margin="10,0,0,0"
                                     Click="BtnCancelarEntrega_Click"/>
+                            <Button Content="🔑  Marcar masivo"
+                                    Style="{StaticResource GhostButton}"
+                                    Height="38" MinWidth="150"
+                                    Margin="10,0,0,0"
+                                    ToolTip="Marcar como entregadas (sin firma) — requiere contraseña"
+                                    Click="BtnMasivo_Click"/>
                         </StackPanel>
                     </Grid>
 

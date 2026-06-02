@@ -42,13 +42,21 @@
                        FontWeight="Bold"
                        Foreground="#16A34A"/>
 
+            <Button Content="📄 Exportar PDF"
+                    Style="{StaticResource PurpleButton}"
+                    Height="38"
+                    Width="150"
+                    Margin="20,0,0,0"
+                    Click="BtnExportarPdf_Click"/>
+
             <Button Content="💾 Exportar CSV"
                     Height="38"
-                    Width="140"
-                    Margin="20,0,0,0"
+                    Width="150"
+                    Margin="10,0,0,0"
                     Click="BtnExportar_Click"/>
 
             <Button Content="👁 Ver firma"
+                    Style="{StaticResource GhostButton}"
                     Height="38"
                     Width="120"
                     Margin="10,0,0,0"

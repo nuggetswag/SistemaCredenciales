@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Configuración"
-        Height="480"
+        Height="660"
         Width="700"
         WindowStartupLocation="CenterScreen"
         Background="#F1F5F9">
@@ -67,6 +67,24 @@
                 <Button Grid.Column="1" Content="..." Width="40" Height="38"
                         Margin="8,0,0,0" Click="BtnBuscarCarpeta_Click" Tag="reportes"/>
             </Grid>
+
+            <TextBlock Text="Logo de la institución (aparece en el menú)"
+                       FontWeight="Bold" Margin="0,15,0,4"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="🖼 Elegir logo..."
+                        Style="{StaticResource GhostButton}"
+                        Height="38" Width="160"
+                        Click="BtnElegirLogo_Click"/>
+                <TextBlock x:Name="txtLogoEstado"
+                           VerticalAlignment="Center"
+                           Margin="12,0,0,0"
+                           Foreground="{StaticResource MutedBrush}"/>
+            </StackPanel>
+
+            <TextBlock Text="Contraseña para marcado masivo"
+                       FontWeight="Bold" Margin="0,15,0,4"/>
+            <TextBox x:Name="txtClave" Height="38"
+                     VerticalContentAlignment="Center"/>
 
         </StackPanel>
 

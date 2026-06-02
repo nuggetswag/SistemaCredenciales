@@ -1,4 +1,5 @@
 using SistemaCredenciales.Models;
+using SistemaCredenciales.Reports;
 using SistemaCredenciales.Services;
 using System;
 using System.Collections.Generic;
@@ -92,6 +93,45 @@ namespace SistemaCredenciales
                 FileName = rutaFirma,
                 UseShellExecute = true
             });
+        }
+
+        private void BtnExportarPdf_Click(object sender, RoutedEventArgs e)
+        {
+            if (entregas.Count == 0)
+            {
+                Dialogo.Show("No hay entregas para exportar.");
+                return;
+            }
+
+            string escuela = cmbEscuela.SelectedItem as string ?? TodasLasEscuelas;
+            string etiqueta = escuela == TodasLasEscuelas ? "Todas" : escuela;
+
+            AppConfig.Actual.AsegurarCarpetas();
+
+            string ruta = System.IO.Path.Combine(
+                AppConfig.Actual.CarpetaReportes,
+                $"Entregas_{etiqueta}_{DateTime.Now:yyyy-MM-dd_HH-mm}.pdf");
+
+            try
+            {
+                var pdf = new PdfReportService();
+
+                pdf.GenerarReporteEntregas(
+                    entregas,
+                    "Entregas realizadas",
+                    $"Escuela: {etiqueta}",
+                    ruta);
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = ruta,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Dialogo.Show("No se pudo generar el PDF:\n\n" + ex.Message);
+            }
         }
 
         private void BtnExportar_Click(object sender, RoutedEventArgs e)

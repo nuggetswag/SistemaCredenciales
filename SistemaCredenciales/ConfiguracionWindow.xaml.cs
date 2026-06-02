@@ -19,6 +19,45 @@ namespace SistemaCredenciales
             txtBusqueda.Text = cfg.CarpetaBusqueda;
             txtFirmas.Text = cfg.CarpetaFirmas;
             txtReportes.Text = cfg.CarpetaReportes;
+            txtClave.Text = cfg.ClaveMaestra;
+
+            ActualizarEstadoLogo();
+        }
+
+        private void ActualizarEstadoLogo()
+        {
+            txtLogoEstado.Text =
+                File.Exists(AppConfig.RutaLogo)
+                    ? "Logo cargado ✓"
+                    : "Sin logo (se muestra el texto CUDEC)";
+        }
+
+        private void BtnElegirLogo_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Selecciona la imagen del logo",
+                Filter = "Imágenes (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                File.Copy(dialog.FileName, AppConfig.RutaLogo, true);
+
+                ActualizarEstadoLogo();
+
+                // Refrescar el logo en la ventana principal al instante.
+                MainWindow.Instancia?.RecargarLogo();
+
+                Dialogo.Show("Logo actualizado.");
+            }
+            catch (Exception ex)
+            {
+                Dialogo.Show("No se pudo copiar el logo:\n\n" + ex.Message);
+            }
         }
 
         private void BtnBuscarCarpeta_Click(object sender, RoutedEventArgs e)
@@ -63,10 +102,17 @@ namespace SistemaCredenciales
 
             AppConfig cfg = AppConfig.Actual;
 
+            if (string.IsNullOrWhiteSpace(txtClave.Text))
+            {
+                Dialogo.Show("La contraseña no puede quedar vacía.");
+                return;
+            }
+
             cfg.NombreInstitucion = txtInstitucion.Text.Trim();
             cfg.CarpetaBusqueda = txtBusqueda.Text.Trim();
             cfg.CarpetaFirmas = txtFirmas.Text.Trim();
             cfg.CarpetaReportes = txtReportes.Text.Trim();
+            cfg.ClaveMaestra = txtClave.Text.Trim();
 
             cfg.Guardar();
             cfg.AsegurarCarpetas();

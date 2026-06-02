@@ -614,6 +614,41 @@ namespace SistemaCredenciales.Services
             return eliminadas;
         }
 
+        /// <summary>
+        /// Marca como ENTREGADAS (con fecha de hoy y sin firma) todas las
+        /// credenciales pendientes. Si se indica escuela, solo las de esa escuela.
+        /// Pensado para datos antiguos ya entregados antes de usar el programa.
+        /// Devuelve cuántas se marcaron.
+        /// </summary>
+        public int MarcarTodasEntregadas(string? escuela)
+        {
+            using (SqliteConnection connection =
+                sqlite.ObtenerConexion())
+            {
+                connection.Open();
+
+                string query =
+                    @"UPDATE CredencialesImportadas
+                      SET Entregada = 1, FechaEntrega = @Fecha
+                      WHERE Entregada = 0";
+
+                if (!string.IsNullOrEmpty(escuela))
+                    query += " AND Escuela = @Escuela";
+
+                using (SqliteCommand command =
+                    new SqliteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue(
+                        "@Fecha", DateTime.Now.ToString(FormatoFecha));
+
+                    if (!string.IsNullOrEmpty(escuela))
+                        command.Parameters.AddWithValue("@Escuela", escuela);
+
+                    return command.ExecuteNonQuery();
+                }
+            }
+        }
+
         public void CambiarEstadoEntrega(int id, bool entregada)
         {
             using (SqliteConnection connection =

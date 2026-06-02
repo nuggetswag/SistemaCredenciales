@@ -21,7 +21,16 @@ namespace SistemaCredenciales.Services
 
         public string NombreInstitucion { get; set; } = "";
 
+        /// <summary>Contraseña para acciones sensibles (marcado masivo).</summary>
+        public string ClaveMaestra { get; set; } = "";
+
         private static AppConfig? _actual;
+
+        /// <summary>Ruta del logo de la institución (junto al ejecutable).</summary>
+        public static string RutaLogo =>
+            Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory,
+                "logo.png");
 
         private static readonly string RutaConfig =
             Path.Combine(
@@ -56,7 +65,9 @@ namespace SistemaCredenciales.Services
                 CarpetaReportes =
                     Path.Combine(CarpetaBase, "Reportes"),
 
-                NombreInstitucion = "CUDEC"
+                NombreInstitucion = "CUDEC",
+
+                ClaveMaestra = "cudec2026"
             };
         }
 
@@ -104,6 +115,9 @@ namespace SistemaCredenciales.Services
 
             if (string.IsNullOrWhiteSpace(NombreInstitucion))
                 NombreInstitucion = def.NombreInstitucion;
+
+            if (string.IsNullOrWhiteSpace(ClaveMaestra))
+                ClaveMaestra = def.ClaveMaestra;
         }
 
         public void Guardar()
