@@ -375,6 +375,23 @@ namespace SistemaCredenciales
 
         private void BtnConfiguracion_Click(object sender, RoutedEventArgs e)
         {
+            // Candado: para abrir Configuración hay que escribir la contraseña.
+            var clave = new ClaveWindow(
+                "Escribe la contraseña para abrir Configuración.")
+            {
+                Owner = this
+            };
+
+            if (clave.ShowDialog() != true)
+                return;
+
+            if (clave.Clave != AppConfig.Actual.ClaveMaestra)
+            {
+                Dialogo.Show("Contraseña incorrecta.", "Acceso denegado",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             new ConfiguracionWindow().ShowDialog();
             CargarDatos();
         }
