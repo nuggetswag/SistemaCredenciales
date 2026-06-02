@@ -1,4 +1,4 @@
-﻿<Window x:Class="SistemaCredenciales.MainWindow"
+<Window x:Class="SistemaCredenciales.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,72 +6,95 @@
         xmlns:local="clr-namespace:SistemaCredenciales"
         mc:Ignorable="d"
         Title="Sistema de Control de Credenciales"
-        Height="700"
-        Width="1200"
+        Height="740"
+        Width="1240"
+        MinHeight="600"
+        MinWidth="1000"
+        FontFamily="Segoe UI"
+        Background="{StaticResource BgBrush}"
         WindowStartupLocation="CenterScreen">
 
     <Grid>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="240"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- SIDEBAR -->
-        <Border Background="#1E293B" Grid.Column="0">
+        <!-- ===================== SIDEBAR ===================== -->
+        <Border Background="{StaticResource SidebarBrush}" Grid.Column="0">
 
-            <StackPanel Margin="10">
+            <DockPanel Margin="16,22,16,16">
 
-                <TextBlock Text="CHUNDEC 2026"
-                           FontSize="24"
-                           Foreground="White"
-                           Margin="10"
-                           FontWeight="Bold"/>
+                <!-- LOGO / TÍTULO -->
+                <StackPanel DockPanel.Dock="Top">
 
-                <Button Content="🏫 Escuelas"
-        Height="45"
-        Margin="5"
-        Click="BtnEscuelas_Click"/>
+                    <Border Width="56" Height="56"
+                            CornerRadius="14"
+                            Background="#2563EB"
+                            HorizontalAlignment="Left">
+                        <TextBlock Text="🎓" FontSize="28"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
 
-                <Button Content="📦 Lotes"
-                        Height="45"
-                        Margin="5"
-                        Click="BtnLotes_Click"/>
+                    <TextBlock Text="CHUNDEC 2026"
+                               FontSize="22"
+                               Foreground="White"
+                               FontWeight="Bold"
+                               Margin="2,14,0,0"/>
 
-                <Button Content="🖊 Entregas"
-                        Height="45"
-                        Margin="5"
-                        Click="BtnEntregas_Click"/>
+                    <TextBlock Text="Control de credenciales"
+                               FontSize="12"
+                               Foreground="#94A3B8"
+                               Margin="2,2,0,0"/>
 
-                <Button Content="📊 Reportes"
-        Height="45"
-        Margin="5"
-        Click="BtnReportes_Click"/>
+                    <Border Height="1" Background="#334155" Margin="0,18,0,14"/>
 
-                <Button Content="⚙ Configuración"
-                        Height="45"
-                        Margin="5"
-                        Click="BtnConfiguracion_Click"/>
+                </StackPanel>
 
-            </StackPanel>
+                <!-- PIE -->
+                <TextBlock DockPanel.Dock="Bottom"
+                           Text="v1.0 · portable"
+                           FontSize="11"
+                           Foreground="#64748B"
+                           HorizontalAlignment="Center"/>
+
+                <!-- NAVEGACIÓN -->
+                <StackPanel>
+                    <Button Content="🏫   Escuelas" Style="{StaticResource NavButton}"
+                            Margin="0,3" Click="BtnEscuelas_Click"/>
+                    <Button Content="📦   Lotes" Style="{StaticResource NavButton}"
+                            Margin="0,3" Click="BtnLotes_Click"/>
+                    <Button Content="🖊   Entregas" Style="{StaticResource NavButton}"
+                            Margin="0,3" Click="BtnEntregas_Click"/>
+                    <Button Content="📊   Reportes" Style="{StaticResource NavButton}"
+                            Margin="0,3" Click="BtnReportes_Click"/>
+                    <Button Content="⚙   Configuración" Style="{StaticResource NavButton}"
+                            Margin="0,3" Click="BtnConfiguracion_Click"/>
+                </StackPanel>
+
+            </DockPanel>
 
         </Border>
 
-        <!-- CONTENIDO -->
-        <Grid Grid.Column="1" Background="#F1F5F9">
+        <!-- ===================== CONTENIDO ===================== -->
+        <Grid Grid.Column="1">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="70"/>
-                <RowDefinition Height="120"/>
+                <RowDefinition Height="76"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <!-- HEADER -->
-            <Border Background="White"
-                    Grid.Row="0">
+            <Border Background="White" Grid.Row="0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="1"
+                                      Opacity="0.10" Color="#1E293B"/>
+                </Border.Effect>
 
-                <Grid>
-
+                <Grid Margin="28,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -79,36 +102,38 @@
 
                     <TextBlock Text="Control de Credenciales"
                                Grid.Column="0"
-                               FontSize="24"
+                               FontSize="22"
                                VerticalAlignment="Center"
-                               Margin="20,0,0,0"
-                               FontWeight="SemiBold"/>
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextBrush}"/>
 
                     <StackPanel Grid.Column="1"
                                 Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                Margin="0,0,20,0">
+                                VerticalAlignment="Center">
 
                         <TextBlock Text="Escuela:"
                                    VerticalAlignment="Center"
                                    Margin="0,0,10,0"
-                                   FontSize="14"/>
+                                   FontSize="13"
+                                   Foreground="{StaticResource MutedBrush}"/>
 
                         <ComboBox x:Name="cmbEscuelas"
-                                  Width="220"
-                                  Height="32"
-                                  VerticalContentAlignment="Center"
+                                  Width="240"
                                   SelectionChanged="cmbEscuelas_SelectionChanged"/>
 
+                        <Button Content="🗑"
+                                Style="{StaticResource GhostButton}"
+                                Margin="8,0,0,0"
+                                Padding="12,6"
+                                ToolTip="Quitar la escuela seleccionada"
+                                Click="BtnQuitarEscuela_Click"/>
+
                     </StackPanel>
-
                 </Grid>
-
             </Border>
 
-
             <!-- DASHBOARD -->
-            <Grid Grid.Row="1" Margin="20">
+            <Grid Grid.Row="1" Margin="28,24,28,8">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -118,212 +143,146 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- TOTAL -->
-                <Button Background="#2563EB"
-        BorderThickness="0"
-        Margin="5"
-        Click="BtnTotal_Click">
-
-                    <StackPanel VerticalAlignment="Center">
-
-                        <TextBlock Text="TOTAL"
-                   Foreground="White"
-                   FontSize="18"
-                   HorizontalAlignment="Center"/>
-
-                        <TextBlock x:Name="txtTotal"
-                   Text="0"
-                   Foreground="White"
-                   FontSize="34"
-                   FontWeight="Bold"
-                   HorizontalAlignment="Center"/>
-
+                <Button Grid.Column="0" Style="{StaticResource CardButton}"
+                        Background="#2563EB" Margin="0,0,8,0"
+                        Click="BtnTotal_Click">
+                    <StackPanel>
+                        <TextBlock Text="📋  TOTAL" Foreground="#DBEAFE"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="txtTotal" Text="0" Foreground="White"
+                                   FontSize="38" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
                     </StackPanel>
-
                 </Button>
 
                 <!-- ENTREGADAS -->
-                <Button Grid.Column="1"
-        Background="#16A34A"
-        BorderThickness="0"
-        Margin="5"
-        Click="BtnEntregadas_Click">
-
-                    <StackPanel VerticalAlignment="Center">
-
-                        <TextBlock Text="ENTREGADAS"
-                   Foreground="White"
-                   FontSize="18"
-                   HorizontalAlignment="Center"/>
-
-                        <TextBlock x:Name="txtEntregadas"
-                   Text="0"
-                   Foreground="White"
-                   FontSize="34"
-                   FontWeight="Bold"
-                   HorizontalAlignment="Center"/>
-
+                <Button Grid.Column="1" Style="{StaticResource CardButton}"
+                        Background="#16A34A" Margin="8,0"
+                        Click="BtnEntregadas_Click">
+                    <StackPanel>
+                        <TextBlock Text="✅  ENTREGADAS" Foreground="#DCFCE7"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="txtEntregadas" Text="0" Foreground="White"
+                                   FontSize="38" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
                     </StackPanel>
-
                 </Button>
 
-
                 <!-- PENDIENTES -->
-                <Button Grid.Column="2"
-        Background="#DC2626"
-        BorderThickness="0"
-        Margin="5"
-        Click="BtnPendientes_Click">
-
-                    <StackPanel VerticalAlignment="Center">
-
-                        <TextBlock Text="PENDIENTES"
-                   Foreground="White"
-                   FontSize="18"
-                   HorizontalAlignment="Center"/>
-
-                        <TextBlock x:Name="txtPendientes"
-                   Text="0"
-                   Foreground="White"
-                   FontSize="34"
-                   FontWeight="Bold"
-                   HorizontalAlignment="Center"/>
-
+                <Button Grid.Column="2" Style="{StaticResource CardButton}"
+                        Background="#DC2626" Margin="8,0"
+                        Click="BtnPendientes_Click">
+                    <StackPanel>
+                        <TextBlock Text="⏳  PENDIENTES" Foreground="#FEE2E2"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="txtPendientes" Text="0" Foreground="White"
+                                   FontSize="38" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
                     </StackPanel>
-
                 </Button>
 
                 <!-- AVANCE -->
-                <Border Grid.Column="3"
-            Background="#7C3AED"
-            CornerRadius="15"
-            Margin="5">
-
+                <Border Grid.Column="3" CornerRadius="16"
+                        Background="#7C3AED" Margin="8,0,0,0"
+                        Padding="10,18">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="14" ShadowDepth="3"
+                                          Opacity="0.22" Color="#1E293B"/>
+                    </Border.Effect>
                     <StackPanel VerticalAlignment="Center">
-
-                        <TextBlock Text="% AVANCE"
-                       Foreground="White"
-                       FontSize="18"
-                       HorizontalAlignment="Center"/>
-
-                        <TextBlock x:Name="txtAvance"
-                       Text="0%"
-                       Foreground="White"
-                       FontSize="34"
-                       FontWeight="Bold"
-                       HorizontalAlignment="Center"/>
-
+                        <TextBlock Text="📈  % AVANCE" Foreground="#EDE9FE"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="txtAvance" Text="0%" Foreground="White"
+                                   FontSize="38" FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
                     </StackPanel>
-
                 </Border>
 
             </Grid>
 
             <!-- TABLA -->
-            <Grid Grid.Row="2" Margin="20">
+            <Border Grid.Row="2" Background="White" CornerRadius="16"
+                    Margin="28,8,28,24" Padding="18">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="14" ShadowDepth="2"
+                                      Opacity="0.12" Color="#1E293B"/>
+                </Border.Effect>
+
+                <Grid>
                     <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-              
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <!-- BUSCADOR Y BOTÓN -->
-                <StackPanel Orientation="Horizontal"
-            Grid.Row="0"
-            VerticalAlignment="Center">
+                    <!-- BARRA DE ACCIONES -->
+                    <Grid Grid.Row="0" Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <!-- BUSCADOR -->
-                    <TextBox x:Name="txtBuscar"
-         Height="35"
-         Width="300"
-         GotFocus="txtBuscar_GotFocus"
-         LostFocus="txtBuscar_LostFocus"
-         TextChanged="txtBuscar_TextChanged"/>
+                        <TextBox x:Name="txtBuscar"
+                                 Grid.Column="0"
+                                 Height="38"
+                                 MaxWidth="380"
+                                 HorizontalAlignment="Left"
+                                 GotFocus="txtBuscar_GotFocus"
+                                 LostFocus="txtBuscar_LostFocus"
+                                 TextChanged="txtBuscar_TextChanged"/>
 
-                    <!-- ENTREGAR -->
-                    <Button Content="ENTREGAR"
-            Width="120"
-            Height="35"
-            Margin="10,0,0,0"
-            Click="BtnEntregar_Click"/>               
-           
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="✅  Entregar"
+                                    Style="{StaticResource SuccessButton}"
+                                    Height="38" MinWidth="130"
+                                    Click="BtnEntregar_Click"/>
+                            <Button Content="↩  Cancelar entrega"
+                                    Style="{StaticResource DangerButton}"
+                                    Height="38" MinWidth="170"
+                                    Margin="10,0,0,0"
+                                    Click="BtnCancelarEntrega_Click"/>
+                        </StackPanel>
+                    </Grid>
 
-                
+                    <!-- DATAGRID -->
+                    <DataGrid x:Name="dgEscuelas"
+                              Grid.Row="1"
+                              IsReadOnly="True"
+                              MouseDoubleClick="dgEscuelas_MouseDoubleClick">
 
-                <!-- CANCELAR -->
-                <Button Content="CANCELAR ENTREGA"
-        Width="180"
-        Height="35"
-        Margin="10,0,0,0"
-        Click="BtnCancelarEntrega_Click"/>
-                    
-                </StackPanel>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Matrícula"
+                                Binding="{Binding Matricula}" Width="120"/>
+                            <DataGridTextColumn Header="Nombre"
+                                Binding="{Binding Nombre}" Width="160"/>
+                            <DataGridTextColumn Header="Apellidos"
+                                Binding="{Binding Apellidos}" Width="*"/>
+                            <DataGridTextColumn Header="Escuela"
+                                Binding="{Binding Escuela}" Width="180"/>
+                            <DataGridTextColumn Header="Vigencia"
+                                Binding="{Binding Vigencia}" Width="110"/>
+                            <DataGridCheckBoxColumn Header="Entregada"
+                                Binding="{Binding Entregada}" Width="90"/>
+                        </DataGrid.Columns>
 
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Height" Value="36"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Entregada}" Value="True">
+                                        <Setter Property="Background" Value="#DCFCE7"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
 
-                
-                
-                <!-- TABLA -->
-                <DataGrid x:Name="dgEscuelas"
-          Grid.Row="1"
-          Margin="0,20,0,0"
-          AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                    MouseDoubleClick="dgEscuelas_MouseDoubleClick">
+                    </DataGrid>
 
-                    <DataGrid.Columns>
-
-                        <DataGridTextColumn Header="Matrícula"
-                        Binding="{Binding Matricula}"
-                        Width="120"/>
-
-                        <DataGridTextColumn Header="Nombre"
-                        Binding="{Binding Nombre}"
-                        Width="150"/>
-
-                        <DataGridTextColumn Header="Apellidos"
-                        Binding="{Binding Apellidos}"
-                        Width="220"/>
-
-                        <DataGridTextColumn Header="Escuela"
-                        Binding="{Binding Escuela}"
-                        Width="150"/>
-
-                        <DataGridTextColumn Header="Vigencia"
-                        Binding="{Binding Vigencia}"
-                        Width="110"/>
-
-                        <DataGridCheckBoxColumn Header="Entregada"
-                            Binding="{Binding Entregada}"
-                            Width="90"/>
-
-                    </DataGrid.Columns>
-
-
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
-
-                            <Style.Triggers>
-
-                                <DataTrigger Binding="{Binding Entregada}"
-                             Value="True">
-
-                                    <Setter Property="Background"
-                            Value="LightGreen"/>
-
-                                </DataTrigger>
-
-                            </Style.Triggers>
-
-                        </Style>
-                    </DataGrid.RowStyle>
-
-                </DataGrid>
-                
-                
-                
-                
-
-            </Grid>
+                </Grid>
+            </Border>
 
         </Grid>
 

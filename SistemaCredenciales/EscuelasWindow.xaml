@@ -4,28 +4,32 @@
         Title="Escuelas"
         Height="600"
         Width="900"
+        FontFamily="Segoe UI"
         WindowStartupLocation="CenterScreen"
-        Background="#0F172A">
+        Background="{StaticResource BgBrush}">
 
-    <Grid Margin="20">
+    <Grid Margin="28,24">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- HEADER -->
-        <TextBlock Text="SELECCIONAR ESCUELA"
-                   FontSize="32"
-                   Foreground="White"
-                   FontWeight="Bold"
-                   VerticalAlignment="Center"/>
+        <StackPanel>
+            <TextBlock Text="🏫  Seleccionar escuela"
+                       Style="{StaticResource TituloPantalla}"/>
+            <TextBlock Text="Estas son las bases (.mdb) encontradas en tu escritorio. Elige una para verla."
+                       FontSize="13"
+                       Foreground="{StaticResource MutedBrush}"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
 
         <ScrollViewer Grid.Row="1"
-              VerticalScrollBarVisibility="Auto">
+              VerticalScrollBarVisibility="Auto"
+              Margin="0,18,0,0">
 
-            <WrapPanel x:Name="panelEscuelas"
-               Margin="0,20,0,0"/>
+            <WrapPanel x:Name="panelEscuelas"/>
 
         </ScrollViewer>
 

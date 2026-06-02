@@ -332,5 +332,34 @@ namespace SistemaCredenciales
             new ConfiguracionWindow().ShowDialog();
             CargarDatos();
         }
+
+        private void BtnQuitarEscuela_Click(object sender, RoutedEventArgs e)
+        {
+            if (escuelaActual == "")
+            {
+                MessageBox.Show(
+                    "Primero selecciona una escuela en la lista de arriba " +
+                    "(no se puede quitar \"Todas\").");
+                return;
+            }
+
+            MessageBoxResult resultado = MessageBox.Show(
+                $"¿Quitar la escuela \"{escuelaActual}\" y TODAS sus credenciales?\n\n" +
+                "Esto borra también sus firmas. No se puede deshacer.",
+                "Quitar escuela",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (resultado != MessageBoxResult.Yes)
+                return;
+
+            DatabaseService db = new DatabaseService();
+            int eliminadas = db.EliminarEscuela(escuelaActual);
+
+            MessageBox.Show($"Se quitó \"{escuelaActual}\" ({eliminadas} credenciales).");
+
+            escuelaActual = "";
+            CargarDatos();
+        }
     }
 }

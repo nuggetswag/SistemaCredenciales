@@ -559,6 +559,61 @@ namespace SistemaCredenciales.Services
         //  ENTREGAS Y FIRMAS
         // ----------------------------------------------------------------
 
+        /// <summary>
+        /// Elimina todas las credenciales de una escuela y borra los archivos de
+        /// firma asociados. Devuelve cuántas credenciales se eliminaron.
+        /// </summary>
+        public int EliminarEscuela(string escuela)
+        {
+            int eliminadas = 0;
+
+            using (SqliteConnection connection =
+                sqlite.ObtenerConexion())
+            {
+                connection.Open();
+
+                // Borrar primero los PNG de firma de esa escuela.
+                using (SqliteCommand firmas =
+                    new SqliteCommand(
+                        @"SELECT RutaFirma FROM CredencialesImportadas
+                          WHERE Escuela = @Escuela
+                            AND RutaFirma IS NOT NULL AND RutaFirma <> ''",
+                        connection))
+                {
+                    firmas.Parameters.AddWithValue("@Escuela", escuela);
+
+                    using (SqliteDataReader reader = firmas.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string ruta = reader["RutaFirma"]?.ToString() ?? "";
+
+                            try
+                            {
+                                if (ruta != "" && System.IO.File.Exists(ruta))
+                                    System.IO.File.Delete(ruta);
+                            }
+                            catch
+                            {
+                                // Si un archivo no se puede borrar, se ignora.
+                            }
+                        }
+                    }
+                }
+
+                using (SqliteCommand borrar =
+                    new SqliteCommand(
+                        "DELETE FROM CredencialesImportadas WHERE Escuela = @Escuela",
+                        connection))
+                {
+                    borrar.Parameters.AddWithValue("@Escuela", escuela);
+                    eliminadas = borrar.ExecuteNonQuery();
+                }
+            }
+
+            return eliminadas;
+        }
+
         public void CambiarEstadoEntrega(int id, bool entregada)
         {
             using (SqliteConnection connection =
