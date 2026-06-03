@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SistemaCredenciales"
         mc:Ignorable="d"
         Title="Sistema de Control de Credenciales"
-        Icon="icon.ico"
+        Icon="/icon.ico"
         Height="740"
         Width="1240"
         MinHeight="600"
