@@ -278,8 +278,30 @@
                                 Binding="{Binding Escuela}" Width="180"/>
                             <DataGridTextColumn Header="Vigencia"
                                 Binding="{Binding Vigencia}" Width="110"/>
-                            <DataGridCheckBoxColumn Header="Entregada"
-                                Binding="{Binding Entregada}" Width="90"/>
+                            <DataGridTemplateColumn Header="Estado" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border x:Name="pill" CornerRadius="10"
+                                                Padding="10,3"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Background="#FEE2E2">
+                                            <TextBlock x:Name="txtEstado"
+                                                       Text="Pendiente"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#B91C1C"/>
+                                        </Border>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Entregada}" Value="True">
+                                                <Setter TargetName="pill" Property="Background" Value="#15803D"/>
+                                                <Setter TargetName="txtEstado" Property="Text" Value="Entregada"/>
+                                                <Setter TargetName="txtEstado" Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
 
                         <DataGrid.RowStyle>

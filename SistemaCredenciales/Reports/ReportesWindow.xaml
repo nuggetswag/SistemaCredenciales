@@ -59,7 +59,7 @@
             </StackPanel>
 
             <CheckBox x:Name="chkFirma"
-                      Content="Incluir columna de firma (Sí / No)"
+                      Content="Incluir la imagen de la firma en el reporte"
                       Margin="0,18,0,0"/>
 
         </StackPanel>

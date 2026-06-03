@@ -149,34 +149,6 @@ namespace SistemaCredenciales
 
             bool incluirFirma = chkFirma.IsChecked == true;
 
-            var encabezados = new List<string>
-                { "Matrícula", "Nombre", "Apellidos", "Escuela", "Vigencia", "Estado" };
-
-            if (incluirFecha)
-                encabezados.Add("Fecha entrega");
-
-            if (incluirFirma)
-                encabezados.Add("Firma");
-
-            var filas = new List<string[]>();
-
-            foreach (CredencialImportada c in datos)
-            {
-                var fila = new List<string>
-                {
-                    c.Matricula, c.Nombre, c.Apellidos, c.Escuela, c.Vigencia,
-                    c.Entregada ? "ENTREGADA" : "PENDIENTE"
-                };
-
-                if (incluirFecha)
-                    fila.Add(c.FechaEntrega);
-
-                if (incluirFirma)
-                    fila.Add(string.IsNullOrEmpty(c.RutaFirma) ? "No" : "Sí");
-
-                filas.Add(fila.ToArray());
-            }
-
             string subtitulo =
                 $"Escuela: {etiquetaEscuela}" +
                 (desde != null
@@ -187,8 +159,9 @@ namespace SistemaCredenciales
                 AppConfig.Actual.CarpetaReportes,
                 $"Reporte_{Tipo(tipo)}_{etiquetaEscuela}_{DateTime.Now:yyyy-MM-dd_HH-mm}.pdf");
 
-            return pdf.GenerarReporte(
-                titulo, subtitulo, encabezados.ToArray(), filas, ruta);
+            // Si se marca "incluir firma", se muestra la IMAGEN de la firma.
+            return pdf.GenerarReporteCredenciales(
+                datos, titulo, subtitulo, ruta, incluirFecha, incluirFirma);
         }
 
         private string? GenerarResumen(DatabaseService db, PdfReportService pdf)

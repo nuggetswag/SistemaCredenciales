@@ -140,6 +140,75 @@ namespace SistemaCredenciales.Reports
             return rutaSalida;
         }
 
+        /// <summary>
+        /// Reporte de credenciales con columnas configurables. Si se incluye la
+        /// firma, muestra la IMAGEN de la firma en cada fila.
+        /// </summary>
+        public string GenerarReporteCredenciales(
+            List<CredencialImportada> datos,
+            string titulo,
+            string subtitulo,
+            string rutaSalida,
+            bool incluirFecha,
+            bool incluirFirma)
+        {
+            var encabezados = new List<string>
+                { "Matrícula", "Nombre", "Apellidos", "Escuela", "Vigencia", "Estado" };
+            var anchos = new List<float> { 1.0f, 1.4f, 1.6f, 1.4f, 1.0f, 1.0f };
+
+            if (incluirFecha) { encabezados.Add("Fecha"); anchos.Add(1.2f); }
+            if (incluirFirma) { encabezados.Add("Firma"); anchos.Add(1.7f); }
+
+            Document documento = new Document(PageSize.A4, 36, 36, 40, 40);
+
+            using (FileStream stream =
+                new FileStream(rutaSalida, FileMode.Create))
+            {
+                PdfWriter.GetInstance(documento, stream);
+                documento.Open();
+
+                EscribirEncabezado(documento, titulo, subtitulo);
+
+                var tabla = new PdfPTable(encabezados.Count) { WidthPercentage = 100 };
+                tabla.SetWidths(anchos.ToArray());
+
+                foreach (string encabezado in encabezados)
+                {
+                    tabla.AddCell(new PdfPCell(
+                        new Phrase(encabezado, FuenteEncabezadoTabla))
+                    {
+                        BackgroundColor = new BaseColor(30, 41, 59),
+                        Padding = 5
+                    });
+                }
+
+                foreach (CredencialImportada c in datos)
+                {
+                    tabla.AddCell(Celda(c.Matricula));
+                    tabla.AddCell(Celda(c.Nombre));
+                    tabla.AddCell(Celda(c.Apellidos));
+                    tabla.AddCell(Celda(c.Escuela));
+                    tabla.AddCell(Celda(c.Vigencia));
+                    tabla.AddCell(Celda(c.Entregada ? "ENTREGADA" : "PENDIENTE"));
+
+                    if (incluirFecha)
+                        tabla.AddCell(Celda(c.FechaEntrega));
+
+                    if (incluirFirma)
+                        tabla.AddCell(CeldaFirma(c.RutaFirma));
+                }
+
+                documento.Add(tabla);
+                documento.Add(new Paragraph(" "));
+                documento.Add(new Paragraph(
+                    $"Total de registros: {datos.Count}", FuenteSubtitulo));
+
+                documento.Close();
+            }
+
+            return rutaSalida;
+        }
+
         private PdfPCell Celda(string texto)
         {
             return new PdfPCell(new Phrase(texto ?? "", FuenteCelda))
