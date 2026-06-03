@@ -439,6 +439,114 @@ namespace SistemaCredenciales.Reports
             };
         }
 
+        // ----------------------------------------------------------------
+        //  CREDENCIALES (imágenes ya renderizadas)
+        // ----------------------------------------------------------------
+
+        private static float Mm(double mm) => (float)(mm * 72.0 / 25.4);
+
+        /// <summary>
+        /// Una credencial por página (frente y, si existe, reverso en página
+        /// aparte). Cada imagen centrada y ajustada a la página.
+        /// </summary>
+        public string GenerarCredencialesIndividual(
+            List<(byte[] frente, byte[]? reverso)> credenciales, string rutaSalida)
+        {
+            Document documento = new Document(PageSize.A4, 36, 36, 36, 36);
+
+            using (FileStream stream = new FileStream(rutaSalida, FileMode.Create))
+            {
+                PdfWriter.GetInstance(documento, stream);
+                documento.Open();
+
+                float maxW = documento.PageSize.Width - 72;
+                float maxH = documento.PageSize.Height - 72;
+                bool primera = true;
+
+                foreach (var (frente, reverso) in credenciales)
+                {
+                    if (!primera) documento.NewPage();
+                    primera = false;
+
+                    AgregarImagenCentrada(documento, frente, maxW, maxH);
+
+                    if (reverso != null && reverso.Length > 0)
+                    {
+                        documento.NewPage();
+                        AgregarImagenCentrada(documento, reverso, maxW, maxH);
+                    }
+                }
+
+                documento.Close();
+            }
+
+            return rutaSalida;
+        }
+
+        /// <summary>
+        /// Lote en mosaico: varias credenciales (frentes) por hoja, a tamaño real
+        /// CR80 (86x54 mm), para imprimir y recortar.
+        /// </summary>
+        public string GenerarCredencialesMosaico(
+            List<byte[]> frentes, string rutaSalida)
+        {
+            Document documento = new Document(PageSize.A4, 28, 28, 28, 28);
+
+            using (FileStream stream = new FileStream(rutaSalida, FileMode.Create))
+            {
+                PdfWriter.GetInstance(documento, stream);
+                documento.Open();
+
+                const int columnas = 2;
+                float w = Mm(86), h = Mm(54);
+
+                var tabla = new PdfPTable(columnas) { WidthPercentage = 100 };
+
+                foreach (byte[] frente in frentes)
+                {
+                    var celda = new PdfPCell
+                    {
+                        Border = Rectangle.NO_BORDER,
+                        Padding = 8,
+                        HorizontalAlignment = Element.ALIGN_CENTER,
+                        FixedHeight = h + 18
+                    };
+                    try
+                    {
+                        Image img = Image.GetInstance(frente);
+                        img.ScaleAbsolute(w, h);
+                        img.Alignment = Element.ALIGN_CENTER;
+                        celda.AddElement(img);
+                    }
+                    catch { }
+                    tabla.AddCell(celda);
+                }
+
+                int resto = frentes.Count % columnas;
+                if (resto > 0)
+                    for (int i = resto; i < columnas; i++)
+                        tabla.AddCell(new PdfPCell { Border = Rectangle.NO_BORDER });
+
+                documento.Add(tabla);
+                documento.Close();
+            }
+
+            return rutaSalida;
+        }
+
+        private void AgregarImagenCentrada(
+            Document doc, byte[] bytes, float maxW, float maxH)
+        {
+            try
+            {
+                Image img = Image.GetInstance(bytes);
+                img.ScaleToFit(maxW, maxH);
+                img.Alignment = Element.ALIGN_CENTER | Element.ALIGN_MIDDLE;
+                doc.Add(img);
+            }
+            catch { }
+        }
+
         private void EscribirEncabezado(
             Document documento,
             string titulo,

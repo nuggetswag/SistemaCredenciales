@@ -69,6 +69,21 @@ namespace SistemaCredenciales.Services
                 using (var cmdBitacora = new SqliteCommand(bitacora, connection))
                     cmdBitacora.ExecuteNonQuery();
 
+                string disenos =
+                    @"
+                    CREATE TABLE IF NOT EXISTS DisenosCredencial
+                    (
+                        Tipo TEXT,
+                        Lado TEXT,
+                        PlantillaRuta TEXT,
+                        CamposJson TEXT,
+                        PRIMARY KEY (Tipo, Lado)
+                    );
+                    ";
+
+                using (var cmdDisenos = new SqliteCommand(disenos, connection))
+                    cmdDisenos.ExecuteNonQuery();
+
                 Migrar(connection);
             }
         }
@@ -94,6 +109,9 @@ namespace SistemaCredenciales.Services
 
             AgregarColumnaSiFalta(connection, columnas, "FechaEntrega", "TEXT");
             AgregarColumnaSiFalta(connection, columnas, "ArchivoOrigen", "TEXT");
+            AgregarColumnaSiFalta(connection, columnas, "Categoria", "TEXT");
+            AgregarColumnaSiFalta(connection, columnas, "Carrera", "TEXT");
+            AgregarColumnaSiFalta(connection, columnas, "RutaFoto", "TEXT");
 
             // Datos antiguos: la escuela se guardaba fija como "CUDEC" y el nombre
             // real quedaba en Area. Se rellena Escuela con Area para poder filtrar.

@@ -21,5 +21,12 @@
         public string FechaEntrega { get; set; } = "";
 
         public string RutaFirma { get; set; } = "";
+
+        // Datos para generación de credenciales
+        public string Categoria { get; set; } = "";
+
+        public string Carrera { get; set; } = "";
+
+        public string RutaFoto { get; set; } = "";
     }
 }

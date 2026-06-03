@@ -82,6 +82,9 @@ namespace SistemaCredenciales.Services
                                 Nombre = ValorPorIndice(reader, mapa.Nombre),
                                 Apellidos = ValorPorIndice(reader, mapa.Apellidos),
                                 Vigencia = ValorPorIndice(reader, mapa.Vigencia),
+                                Categoria = ValorPorIndice(reader, mapa.Categoria),
+                                Carrera = ValorPorIndice(reader, mapa.Carrera),
+                                RutaFoto = ValorPorIndice(reader, mapa.FotoPath),
                                 Escuela = escuela,
                                 Area = escuela
                             };
@@ -188,6 +191,37 @@ namespace SistemaCredenciales.Services
             }
 
             return lista;
+        }
+
+        /// <summary>Carpeta donde se guardan las fotos tomadas (junto al .exe).</summary>
+        public static string CarpetaFotos =>
+            System.IO.Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, "Fotos");
+
+        /// <summary>
+        /// Resuelve la foto de una credencial probando, en orden:
+        /// 1) la ruta guardada (RutaFoto), 2) la carpeta de fotos por matrícula,
+        /// 3) la foto embebida en el .mdb de su escuela. Devuelve bytes o null.
+        /// </summary>
+        public byte[]? ObtenerFotoCredencial(CredencialImportada c)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(c.RutaFoto)
+                    && System.IO.File.Exists(c.RutaFoto))
+                    return System.IO.File.ReadAllBytes(c.RutaFoto);
+
+                foreach (string ext in new[] { ".png", ".jpg", ".jpeg" })
+                {
+                    string ruta = System.IO.Path.Combine(
+                        CarpetaFotos, c.Matricula + ext);
+                    if (System.IO.File.Exists(ruta))
+                        return System.IO.File.ReadAllBytes(ruta);
+                }
+            }
+            catch { }
+
+            return ObtenerFotoDeMDB(c.Escuela, c.Matricula);
         }
 
         /// <summary>
@@ -326,6 +360,9 @@ namespace SistemaCredenciales.Services
                             Nombre = ValorPorIndice(reader, mapa.Nombre),
                             Apellidos = ValorPorIndice(reader, mapa.Apellidos),
                             Vigencia = ValorPorIndice(reader, mapa.Vigencia),
+                            Categoria = ValorPorIndice(reader, mapa.Categoria),
+                            Carrera = ValorPorIndice(reader, mapa.Carrera),
+                            RutaFoto = ValorPorIndice(reader, mapa.FotoPath),
                             Escuela = escuela,
                             Area = escuela
                         };
@@ -454,6 +491,9 @@ namespace SistemaCredenciales.Services
             public int Nombre;
             public int Apellidos;
             public int Vigencia;
+            public int Categoria;
+            public int Carrera;
+            public int FotoPath;
         }
 
         private MapaColumnas DetectarColumnas(OleDbDataReader reader)
@@ -473,7 +513,13 @@ namespace SistemaCredenciales.Services
                     "apellidos", "idwapellidos", "apellido", "apellidopaterno"),
                 Vigencia = BuscarColumna(nombres,
                     "vigencia", "idwvigencia", "vence", "fechavigencia",
-                    "validohasta")
+                    "validohasta"),
+                Categoria = BuscarColumna(nombres,
+                    "categoria", "tipo", "rol"),
+                Carrera = BuscarColumna(nombres,
+                    "carrera", "licenciatura", "programa", "grado"),
+                FotoPath = BuscarColumna(nombres,
+                    "fotopath", "rutafoto", "fotoruta", "pathfoto")
             };
         }
 
@@ -577,9 +623,11 @@ namespace SistemaCredenciales.Services
 
             string insert =
                 @"INSERT INTO CredencialesImportadas
-                    (Matricula, Nombre, Apellidos, Vigencia, Escuela, Area, ArchivoOrigen)
+                    (Matricula, Nombre, Apellidos, Vigencia, Escuela, Area, ArchivoOrigen,
+                     Categoria, Carrera, RutaFoto)
                   VALUES
-                    (@Matricula, @Nombre, @Apellidos, @Vigencia, @Escuela, @Area, @ArchivoOrigen)";
+                    (@Matricula, @Nombre, @Apellidos, @Vigencia, @Escuela, @Area, @ArchivoOrigen,
+                     @Categoria, @Carrera, @RutaFoto)";
 
             using (SqliteCommand insertCommand =
                 new SqliteCommand(insert, sqlConnection))
@@ -591,6 +639,9 @@ namespace SistemaCredenciales.Services
                 insertCommand.Parameters.AddWithValue("@Escuela", credencial.Escuela ?? "");
                 insertCommand.Parameters.AddWithValue("@Area", credencial.Area ?? "");
                 insertCommand.Parameters.AddWithValue("@ArchivoOrigen", archivoOrigen ?? "");
+                insertCommand.Parameters.AddWithValue("@Categoria", credencial.Categoria ?? "");
+                insertCommand.Parameters.AddWithValue("@Carrera", credencial.Carrera ?? "");
+                insertCommand.Parameters.AddWithValue("@RutaFoto", credencial.RutaFoto ?? "");
 
                 insertCommand.ExecuteNonQuery();
             }
@@ -700,7 +751,10 @@ namespace SistemaCredenciales.Services
                 RutaFirma =
                     reader["RutaFirma"] == DBNull.Value
                         ? ""
-                        : reader["RutaFirma"]?.ToString() ?? ""
+                        : reader["RutaFirma"]?.ToString() ?? "",
+                Categoria = reader["Categoria"]?.ToString() ?? "",
+                Carrera = reader["Carrera"]?.ToString() ?? "",
+                RutaFoto = reader["RutaFoto"]?.ToString() ?? ""
             };
         }
 
