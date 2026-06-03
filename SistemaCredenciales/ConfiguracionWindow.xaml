@@ -103,6 +103,12 @@
                         Height="38" Width="160" Margin="12,0,0,0"
                         Click="BtnVerBitacora_Click"/>
             </StackPanel>
+            <Button Content="📂 Abrir carpeta de respaldos automáticos"
+                    Style="{StaticResource GhostButton}"
+                    Height="38" HorizontalAlignment="Left" Margin="0,10,0,0"
+                    Click="BtnAbrirRespaldos_Click"/>
+            <TextBlock Text="El programa guarda un respaldo automático aquí cada vez que lo cierras (conserva los últimos 5)."
+                       Foreground="Gray" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
 
             <Border Height="1" Background="#E2E8F0" Margin="0,20,0,14"/>
 

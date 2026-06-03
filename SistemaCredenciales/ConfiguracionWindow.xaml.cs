@@ -169,6 +169,21 @@ namespace SistemaCredenciales
             new BitacoraWindow { Owner = this }.ShowDialog();
         }
 
+        private void BtnAbrirRespaldos_Click(object sender, RoutedEventArgs e)
+        {
+            string carpeta = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, "Respaldos");
+
+            Directory.CreateDirectory(carpeta);
+
+            System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = carpeta,
+                    UseShellExecute = true
+                });
+        }
+
         private void BtnRestaurarRespaldo_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog
