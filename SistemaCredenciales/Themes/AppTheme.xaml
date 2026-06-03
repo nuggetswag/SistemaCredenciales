@@ -519,6 +519,42 @@
     </Style>
 
     <!-- ============================================================ -->
+    <!--  TARJETA DE ESCUELA (selector)                                -->
+    <!-- ============================================================ -->
+    <Style x:Key="EscuelaCard" TargetType="Button">
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" CornerRadius="16"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="#E2E8F0" BorderThickness="1"
+                            Padding="16">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="16" ShadowDepth="2"
+                                              Opacity="0.12" Color="#1E293B"/>
+                        </Border.Effect>
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush"
+                                    Value="{StaticResource PrimaryBrush}"/>
+                            <Setter TargetName="bd" Property="Background" Value="#F8FAFF"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="#EEF2FF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================================ -->
     <!--  TÍTULOS REUTILIZABLES                                        -->
     <!-- ============================================================ -->
     <Style x:Key="TituloPantalla" TargetType="TextBlock">
