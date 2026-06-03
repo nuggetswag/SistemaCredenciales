@@ -128,6 +128,68 @@ namespace SistemaCredenciales.Services
             return "";
         }
 
+        /// <summary>
+        /// Lee las fotos (columna binaria, p. ej. IDWFOTO) de una base de Access,
+        /// junto con la matrícula y el nombre. Para el reporte de fotos.
+        /// </summary>
+        public List<FotoCredencial> LeerFotosMDB(string rutaMDB, string tablaMDB)
+        {
+            var lista = new List<FotoCredencial>();
+
+            string cs =
+                $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={rutaMDB};";
+
+            using (var connection = new OleDbConnection(cs))
+            {
+                connection.Open();
+
+                using (var command =
+                    new OleDbCommand($"SELECT * FROM [{tablaMDB}]", connection))
+                using (OleDbDataReader reader = command.ExecuteReader())
+                {
+                    var nombres = NombresColumnas(reader);
+                    var mapa = DetectarColumnas(reader);
+
+                    int idxFoto = BuscarColumna(nombres,
+                        "idwfoto", "foto", "fotografia", "imagen", "image",
+                        "photo", "picture");
+
+                    if (idxFoto < 0)
+                    {
+                        throw new Exception(
+                            "No se encontró una columna de foto en la base.\n" +
+                            "Columnas: " + string.Join(", ", nombres));
+                    }
+
+                    while (reader.Read())
+                    {
+                        object valor = reader.GetValue(idxFoto);
+
+                        if (valor == null || valor == DBNull.Value)
+                            continue;
+
+                        byte[]? foto = valor as byte[];
+
+                        if (foto == null || foto.Length < 100)
+                            continue;
+
+                        string nombre =
+                            (ValorPorIndice(reader, mapa.Nombre) + " " +
+                             ValorPorIndice(reader, mapa.Apellidos)).Trim();
+
+                        lista.Add(new FotoCredencial
+                        {
+                            Matricula = ValorPorIndice(reader, mapa.Matricula),
+                            Nombre = nombre,
+                            Foto = foto
+                        });
+                    }
+                }
+            }
+
+            return lista;
+        }
+
         // ----------------------------------------------------------------
         //  IMPORTACIÓN DESDE EXCEL (.xlsx / .xls)
         // ----------------------------------------------------------------

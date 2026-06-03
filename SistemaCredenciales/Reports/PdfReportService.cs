@@ -209,6 +209,92 @@ namespace SistemaCredenciales.Reports
             return rutaSalida;
         }
 
+        /// <summary>
+        /// Reporte de fotos: una cuadrícula con la imagen de cada persona, su
+        /// matrícula y su nombre. Las fotos vienen de la base .mdb (IDWFOTO).
+        /// </summary>
+        public string GenerarReporteFotos(
+            List<FotoCredencial> fotos,
+            string titulo,
+            string subtitulo,
+            string rutaSalida)
+        {
+            var fuenteMatricula =
+                FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10);
+            var fuenteNombre =
+                FontFactory.GetFont(FontFactory.HELVETICA, 8, new BaseColor(71, 85, 105));
+
+            Document documento = new Document(PageSize.A4, 24, 24, 36, 30);
+
+            using (FileStream stream =
+                new FileStream(rutaSalida, FileMode.Create))
+            {
+                PdfWriter.GetInstance(documento, stream);
+                documento.Open();
+
+                EscribirEncabezado(documento, titulo, subtitulo);
+
+                const int columnas = 4;
+                var tabla = new PdfPTable(columnas) { WidthPercentage = 100 };
+
+                foreach (FotoCredencial f in fotos)
+                {
+                    var celda = new PdfPCell
+                    {
+                        Padding = 8,
+                        HorizontalAlignment = Element.ALIGN_CENTER,
+                        BorderColor = new BaseColor(226, 232, 240),
+                        BorderWidth = 1f
+                    };
+
+                    try
+                    {
+                        Image imagen = Image.GetInstance(f.Foto);
+                        imagen.ScaleToFit(95f, 115f);
+                        imagen.Alignment = Element.ALIGN_CENTER;
+                        celda.AddElement(imagen);
+                    }
+                    catch
+                    {
+                        celda.AddElement(new Paragraph("(sin imagen)", fuenteNombre));
+                    }
+
+                    celda.AddElement(new Paragraph(f.Matricula, fuenteMatricula)
+                    {
+                        Alignment = Element.ALIGN_CENTER,
+                        SpacingBefore = 5
+                    });
+
+                    if (!string.IsNullOrWhiteSpace(f.Nombre))
+                    {
+                        celda.AddElement(new Paragraph(f.Nombre, fuenteNombre)
+                        {
+                            Alignment = Element.ALIGN_CENTER
+                        });
+                    }
+
+                    tabla.AddCell(celda);
+                }
+
+                // Completar la última fila para que la cuadrícula quede pareja.
+                int resto = fotos.Count % columnas;
+                if (resto > 0)
+                {
+                    for (int i = resto; i < columnas; i++)
+                        tabla.AddCell(new PdfPCell { Border = Rectangle.NO_BORDER });
+                }
+
+                documento.Add(tabla);
+                documento.Add(new Paragraph(" "));
+                documento.Add(new Paragraph(
+                    $"Total de fotos: {fotos.Count}", FuenteSubtitulo));
+
+                documento.Close();
+            }
+
+            return rutaSalida;
+        }
+
         private PdfPCell Celda(string texto)
         {
             return new PdfPCell(new Phrase(texto ?? "", FuenteCelda))

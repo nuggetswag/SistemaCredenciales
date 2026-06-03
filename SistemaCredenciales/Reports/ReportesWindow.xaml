@@ -62,6 +62,18 @@
                       Content="Incluir la imagen de la firma en el reporte"
                       Margin="0,18,0,0"/>
 
+            <Border Height="1" Background="#E2E8F0" Margin="0,18,0,0"/>
+
+            <TextBlock Text="Reporte de fotos"
+                       FontWeight="Bold" Margin="0,14,0,4"/>
+            <Button Content="📸 Reporte de fotos (elige la base .mdb)"
+                    Style="{StaticResource GhostButton}"
+                    Height="40" HorizontalAlignment="Left"
+                    Click="BtnReporteFotos_Click"/>
+            <TextBlock Text="Genera un PDF con la foto, matrícula y nombre de cada persona de esa escuela."
+                       Foreground="Gray" FontSize="11" Margin="0,4,0,0"
+                       TextWrapping="Wrap"/>
+
         </StackPanel>
 
         <Button Grid.Row="2"

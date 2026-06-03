@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using SistemaCredenciales.Models;
 using SistemaCredenciales.Reports;
 using SistemaCredenciales.Services;
@@ -78,6 +79,68 @@ namespace SistemaCredenciales
             catch (Exception ex)
             {
                 Dialogo.Show("No se pudo generar el reporte:\n\n" + ex.Message);
+            }
+        }
+
+        private void BtnReporteFotos_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Selecciona la base de la escuela (.mdb)",
+                Filter = "Access (*.mdb)|*.mdb",
+                InitialDirectory =
+                    Directory.Exists(AppConfig.Actual.CarpetaBusqueda)
+                        ? AppConfig.Actual.CarpetaBusqueda
+                        : Environment.GetFolderPath(
+                            Environment.SpecialFolder.DesktopDirectory)
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                var db = new DatabaseService();
+                string tabla = db.ObtenerTablaMDB(dialog.FileName);
+
+                List<FotoCredencial> fotos =
+                    db.LeerFotosMDB(dialog.FileName, tabla);
+
+                if (fotos.Count == 0)
+                {
+                    Dialogo.Show("No se encontraron fotos en esa base.");
+                    return;
+                }
+
+                string escuela =
+                    Path.GetFileNameWithoutExtension(dialog.FileName);
+
+                AppConfig.Actual.AsegurarCarpetas();
+
+                string ruta = Path.Combine(
+                    AppConfig.Actual.CarpetaReportes,
+                    $"Fotos_{escuela}_{DateTime.Now:yyyy-MM-dd_HH-mm}.pdf");
+
+                new PdfReportService().GenerarReporteFotos(
+                    fotos,
+                    "Reporte de fotos",
+                    $"Escuela: {escuela}   |   {fotos.Count} fotos",
+                    ruta);
+
+                new BitacoraService().Registrar(
+                    "Reporte de fotos", $"{escuela}: {fotos.Count} fotos");
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = ruta,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Dialogo.Show(
+                    "No se pudo generar el reporte de fotos:\n\n" + ex.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
