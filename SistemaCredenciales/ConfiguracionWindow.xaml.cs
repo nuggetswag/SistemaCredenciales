@@ -130,6 +130,75 @@ namespace SistemaCredenciales
         }
 
         // ----------------------------------------------------------------
+        //  RESPALDO
+        // ----------------------------------------------------------------
+
+        private void BtnHacerRespaldo_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog
+            {
+                Filter = "Respaldo (*.zip)|*.zip",
+                FileName = $"RespaldoCredenciales_{DateTime.Now:yyyy-MM-dd_HH-mm}.zip",
+                InitialDirectory = AppConfig.Actual.CarpetaReportes
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                new RespaldoService().CrearRespaldo(dialog.FileName);
+
+                Dialogo.Show(
+                    "Respaldo creado correctamente. ✓\n\nGuárdalo en un lugar seguro " +
+                    "(otra USB, la nube, etc.).",
+                    "Listo", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                Dialogo.Show("No se pudo crear el respaldo:\n\n" + ex.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnRestaurarRespaldo_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Respaldo (*.zip)|*.zip",
+                InitialDirectory = AppConfig.Actual.CarpetaReportes
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            MessageBoxResult r = Dialogo.Show(
+                "Al restaurar se REEMPLAZAN las credenciales y firmas actuales por " +
+                "las del respaldo.\n\nEsto no se puede deshacer. ¿Continuar?",
+                "Restaurar respaldo",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (r != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                new RespaldoService().RestaurarRespaldo(dialog.FileName);
+
+                // Refrescar la ventana principal con los datos restaurados.
+                MainWindow.Instancia?.CargarDatos();
+
+                Dialogo.Show("Respaldo restaurado correctamente. ✓",
+                    "Listo", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                Dialogo.Show("No se pudo restaurar el respaldo:\n\n" + ex.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ----------------------------------------------------------------
         //  SEGURIDAD: correo de verificación
         // ----------------------------------------------------------------
 

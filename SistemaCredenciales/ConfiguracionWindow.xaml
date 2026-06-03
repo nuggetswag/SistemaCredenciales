@@ -85,6 +85,23 @@
 
             <Border Height="1" Background="#E2E8F0" Margin="0,20,0,14"/>
 
+            <TextBlock Text="💾 Respaldo de datos" FontSize="18" FontWeight="Bold"
+                       Foreground="#1E293B" Margin="0,0,0,8"/>
+            <TextBlock Text="Guarda (o recupera) tus credenciales y firmas en un archivo de respaldo."
+                       Foreground="Gray" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="💾 Hacer respaldo"
+                        Style="{StaticResource SuccessButton}"
+                        Height="38" Width="180"
+                        Click="BtnHacerRespaldo_Click"/>
+                <Button Content="↺ Restaurar respaldo"
+                        Style="{StaticResource GhostButton}"
+                        Height="38" Width="190" Margin="12,0,0,0"
+                        Click="BtnRestaurarRespaldo_Click"/>
+            </StackPanel>
+
+            <Border Height="1" Background="#E2E8F0" Margin="0,20,0,14"/>
+
             <TextBlock Text="🔒 Seguridad" FontSize="18" FontWeight="Bold"
                        Foreground="#1E293B" Margin="0,0,0,8"/>
 
