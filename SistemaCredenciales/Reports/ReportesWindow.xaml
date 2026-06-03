@@ -66,11 +66,17 @@
 
             <TextBlock Text="Reporte de fotos"
                        FontWeight="Bold" Margin="0,14,0,4"/>
-            <Button Content="📸 Reporte de fotos (elige la base .mdb)"
-                    Style="{StaticResource GhostButton}"
-                    Height="40" HorizontalAlignment="Left"
-                    Click="BtnReporteFotos_Click"/>
-            <TextBlock Text="Genera un PDF con la foto, matrícula y nombre de cada persona de esa escuela."
+            <StackPanel Orientation="Horizontal">
+                <Button Content="📸 Reporte de fotos (PDF)"
+                        Style="{StaticResource GhostButton}"
+                        Height="40" HorizontalAlignment="Left"
+                        Click="BtnReporteFotos_Click"/>
+                <Button Content="🗂 Exportar fotos a ZIP"
+                        Style="{StaticResource GhostButton}"
+                        Height="40" Margin="12,0,0,0" HorizontalAlignment="Left"
+                        Click="BtnExportarFotos_Click"/>
+            </StackPanel>
+            <TextBlock Text="PDF = foto + matrícula + nombre para identificar. ZIP = cada foto en .jpg nombrada por su matrícula (respaldo)."
                        Foreground="Gray" FontSize="11" Margin="0,4,0,0"
                        TextWrapping="Wrap"/>
 

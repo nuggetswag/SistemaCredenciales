@@ -144,6 +144,71 @@ namespace SistemaCredenciales
             }
         }
 
+        private void BtnExportarFotos_Click(object sender, RoutedEventArgs e)
+        {
+            var abrir = new OpenFileDialog
+            {
+                Title = "Selecciona la base de la escuela (.mdb)",
+                Filter = "Access (*.mdb)|*.mdb",
+                InitialDirectory =
+                    Directory.Exists(AppConfig.Actual.CarpetaBusqueda)
+                        ? AppConfig.Actual.CarpetaBusqueda
+                        : Environment.GetFolderPath(
+                            Environment.SpecialFolder.DesktopDirectory)
+            };
+
+            if (abrir.ShowDialog() != true)
+                return;
+
+            try
+            {
+                var db = new DatabaseService();
+                string tabla = db.ObtenerTablaMDB(abrir.FileName);
+                List<FotoCredencial> fotos = db.LeerFotosMDB(abrir.FileName, tabla);
+
+                if (fotos.Count == 0)
+                {
+                    Dialogo.Show("No se encontraron fotos en esa base.");
+                    return;
+                }
+
+                string escuela = Path.GetFileNameWithoutExtension(abrir.FileName);
+
+                AppConfig.Actual.AsegurarCarpetas();
+
+                var guardar = new SaveFileDialog
+                {
+                    Filter = "ZIP (*.zip)|*.zip",
+                    FileName = $"Fotos_{escuela}_{DateTime.Now:yyyy-MM-dd}.zip",
+                    InitialDirectory = AppConfig.Actual.CarpetaReportes
+                };
+
+                if (guardar.ShowDialog() != true)
+                    return;
+
+                int n = new RespaldoService().ExportarFotos(fotos, guardar.FileName);
+
+                new BitacoraService().Registrar(
+                    "Exportar fotos (ZIP)", $"{escuela}: {n} fotos");
+
+                Dialogo.Show($"Se exportaron {n} fotos al ZIP. ✓", "Listo",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // Abrir el explorador mostrando el archivo.
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = $"/select,\"{guardar.FileName}\""
+                });
+            }
+            catch (Exception ex)
+            {
+                Dialogo.Show(
+                    "No se pudieron exportar las fotos:\n\n" + ex.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private string? GenerarReporte()
         {
             var db = new DatabaseService();

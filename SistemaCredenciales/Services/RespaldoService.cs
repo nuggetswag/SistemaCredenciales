@@ -1,5 +1,7 @@
 using Microsoft.Data.Sqlite;
+using SistemaCredenciales.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 
@@ -78,6 +80,58 @@ namespace SistemaCredenciales.Services
             }
 
             return rutaZip;
+        }
+
+        /// <summary>
+        /// Exporta las fotos a un .zip, cada una nombrada por su matrícula
+        /// (ej. 125055.jpg). Devuelve cuántas se guardaron.
+        /// </summary>
+        public int ExportarFotos(List<FotoCredencial> fotos, string rutaZip)
+        {
+            if (File.Exists(rutaZip))
+                File.Delete(rutaZip);
+
+            int guardadas = 0;
+            var usados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            using (var zip = ZipFile.Open(rutaZip, ZipArchiveMode.Create))
+            {
+                foreach (FotoCredencial f in fotos)
+                {
+                    if (f.Foto == null || f.Foto.Length == 0)
+                        continue;
+
+                    string baseNombre = SanitizarNombre(
+                        string.IsNullOrWhiteSpace(f.Matricula)
+                            ? "sin_matricula"
+                            : f.Matricula);
+
+                    string nombre = baseNombre + ".jpg";
+                    int n = 2;
+                    while (usados.Contains(nombre))
+                    {
+                        nombre = $"{baseNombre}_{n}.jpg";
+                        n++;
+                    }
+                    usados.Add(nombre);
+
+                    ZipArchiveEntry entry = zip.CreateEntry(nombre);
+                    using (Stream s = entry.Open())
+                        s.Write(f.Foto, 0, f.Foto.Length);
+
+                    guardadas++;
+                }
+            }
+
+            return guardadas;
+        }
+
+        private static string SanitizarNombre(string nombre)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+                nombre = nombre.Replace(c, '_');
+
+            return nombre.Trim();
         }
 
         /// <summary>
