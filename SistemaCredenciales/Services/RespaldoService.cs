@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -6,7 +7,8 @@ namespace SistemaCredenciales.Services
 {
     /// <summary>
     /// Crea y restaura respaldos (.zip) con la base de datos, las firmas y la
-    /// configuración. Protege la información crítica del programa.
+    /// configuración. Usa el respaldo interno de SQLite para copiar la base
+    /// aunque el programa la tenga abierta.
     /// </summary>
     public class RespaldoService
     {
@@ -28,25 +30,51 @@ namespace SistemaCredenciales.Services
             if (File.Exists(rutaZip))
                 File.Delete(rutaZip);
 
-            using (var zip = ZipFile.Open(rutaZip, ZipArchiveMode.Create))
+            // Copia consistente de la base con el API de respaldo de SQLite
+            // (funciona aunque la base esté abierta por el programa).
+            string tempDb =
+                Path.Combine(
+                    Path.GetTempPath(),
+                    "cred_backup_" + Guid.NewGuid().ToString("N") + ".db");
+
+            try
             {
-                if (File.Exists(RutaDb))
-                    zip.CreateEntryFromFile(RutaDb, NombreDb);
-
-                if (File.Exists(RutaConfig))
-                    zip.CreateEntryFromFile(RutaConfig, "config.json");
-
-                string firmas = AppConfig.Actual.CarpetaFirmas;
-
-                if (Directory.Exists(firmas))
+                using (var origen = new SqliteConnection($"Data Source={RutaDb}"))
+                using (var destino = new SqliteConnection($"Data Source={tempDb}"))
                 {
-                    foreach (string archivo in Directory.GetFiles(firmas))
+                    origen.Open();
+                    destino.Open();
+                    origen.BackupDatabase(destino);
+                }
+
+                // Libera los archivos que SQLite pudiera tener en el pool.
+                SqliteConnection.ClearAllPools();
+
+                using (var zip = ZipFile.Open(rutaZip, ZipArchiveMode.Create))
+                {
+                    if (File.Exists(tempDb))
+                        zip.CreateEntryFromFile(tempDb, NombreDb);
+
+                    if (File.Exists(RutaConfig))
+                        zip.CreateEntryFromFile(RutaConfig, "config.json");
+
+                    string firmas = AppConfig.Actual.CarpetaFirmas;
+
+                    if (Directory.Exists(firmas))
                     {
-                        zip.CreateEntryFromFile(
-                            archivo,
-                            CarpetaFirmasZip + Path.GetFileName(archivo));
+                        foreach (string archivo in Directory.GetFiles(firmas))
+                        {
+                            zip.CreateEntryFromFile(
+                                archivo,
+                                CarpetaFirmasZip + Path.GetFileName(archivo));
+                        }
                     }
                 }
+            }
+            finally
+            {
+                try { if (File.Exists(tempDb)) File.Delete(tempDb); }
+                catch { /* archivo temporal; si no se borra, no pasa nada */ }
             }
 
             return rutaZip;
@@ -69,7 +97,9 @@ namespace SistemaCredenciales.Services
                         "(no contiene la base de datos).");
                 }
 
-                // Reemplazar la base de datos.
+                // Liberar la base actual para poder reemplazarla.
+                SqliteConnection.ClearAllPools();
+
                 dbEntry.ExtractToFile(RutaDb, overwrite: true);
 
                 // Reemplazar las firmas.
