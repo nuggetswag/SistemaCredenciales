@@ -148,6 +148,9 @@ namespace SistemaCredenciales
                     return;
                 }
 
+                new BitacoraService().Registrar("Importar lote",
+                    $"{escuela}: {insertadas} nuevas ({tipo})");
+
                 Dialogo.Show(
                     insertadas > 0
                         ? $"Importación terminada: {insertadas} credenciales nuevas en \"{escuela}\"."

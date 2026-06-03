@@ -149,6 +149,9 @@ namespace SistemaCredenciales
             {
                 new RespaldoService().CrearRespaldo(dialog.FileName);
 
+                new BitacoraService().Registrar(
+                    "Respaldo creado", System.IO.Path.GetFileName(dialog.FileName));
+
                 Dialogo.Show(
                     "Respaldo creado correctamente. ✓\n\nGuárdalo en un lugar seguro " +
                     "(otra USB, la nube, etc.).",
@@ -159,6 +162,11 @@ namespace SistemaCredenciales
                 Dialogo.Show("No se pudo crear el respaldo:\n\n" + ex.Message,
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void BtnVerBitacora_Click(object sender, RoutedEventArgs e)
+        {
+            new BitacoraWindow { Owner = this }.ShowDialog();
         }
 
         private void BtnRestaurarRespaldo_Click(object sender, RoutedEventArgs e)
@@ -184,6 +192,9 @@ namespace SistemaCredenciales
             try
             {
                 new RespaldoService().RestaurarRespaldo(dialog.FileName);
+
+                new BitacoraService().Registrar(
+                    "Respaldo restaurado", System.IO.Path.GetFileName(dialog.FileName));
 
                 // Refrescar la ventana principal con los datos restaurados.
                 MainWindow.Instancia?.CargarDatos();
@@ -280,6 +291,8 @@ namespace SistemaCredenciales
             cfg.Guardar();
             pwdApp.Clear();
             ActualizarEstadoCorreo();
+
+            new BitacoraService().Registrar("Configuración de correo", cfg.CorreoUsuario);
 
             Dialogo.Show("Correo configurado y verificado. ✓", "Listo",
                 MessageBoxButton.OK, MessageBoxImage.Information);

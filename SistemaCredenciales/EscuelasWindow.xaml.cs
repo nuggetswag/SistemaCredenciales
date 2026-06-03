@@ -92,6 +92,9 @@ namespace SistemaCredenciales
 
                 int insertadas = db.LeerMDB(rutaMDB, tablaMDB, escuela);
 
+                new BitacoraService().Registrar("Importar escuela",
+                    $"{escuela}: {insertadas} nuevas");
+
                 // Mostrar SOLO esta escuela en la ventana principal.
                 MainWindow.Instancia.SeleccionarEscuela(escuela);
 

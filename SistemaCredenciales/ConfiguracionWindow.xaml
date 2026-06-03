@@ -98,6 +98,10 @@
                         Style="{StaticResource GhostButton}"
                         Height="38" Width="190" Margin="12,0,0,0"
                         Click="BtnRestaurarRespaldo_Click"/>
+                <Button Content="📋 Ver bitácora"
+                        Style="{StaticResource GhostButton}"
+                        Height="38" Width="160" Margin="12,0,0,0"
+                        Click="BtnVerBitacora_Click"/>
             </StackPanel>
 
             <Border Height="1" Background="#E2E8F0" Margin="0,20,0,14"/>

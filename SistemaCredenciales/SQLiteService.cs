@@ -54,6 +54,21 @@ namespace SistemaCredenciales.Services
 
                 command.ExecuteNonQuery();
 
+                string bitacora =
+                    @"
+                    CREATE TABLE IF NOT EXISTS Bitacora
+                    (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Fecha TEXT,
+                        Usuario TEXT,
+                        Accion TEXT,
+                        Detalle TEXT
+                    );
+                    ";
+
+                using (var cmdBitacora = new SqliteCommand(bitacora, connection))
+                    cmdBitacora.ExecuteNonQuery();
+
                 Migrar(connection);
             }
         }

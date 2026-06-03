@@ -83,6 +83,8 @@ namespace SistemaCredenciales
             cfg.ClaveMaestra = p1.Clave;
             cfg.Guardar();
 
+            new BitacoraService().Registrar("Cambio de contraseña");
+
             Dialogo.Show("Contraseña restablecida. ✓", "Listo",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return true;

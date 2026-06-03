@@ -268,6 +268,9 @@ namespace SistemaCredenciales
 
             db.CambiarEstadoEntrega(credencial.Id, true);
 
+            new BitacoraService().Registrar("Entrega",
+                $"{credencial.Matricula} - {credencial.Nombre} {credencial.Apellidos} ({credencial.Escuela})");
+
             Dialogo.Show("Credencial entregada.");
 
             CargarDatos();
@@ -309,6 +312,9 @@ namespace SistemaCredenciales
 
             db.LimpiarRutaFirma(credencial.Id);
             db.CambiarEstadoEntrega(credencial.Id, false);
+
+            new BitacoraService().Registrar("Cancelación de entrega",
+                $"{credencial.Matricula} - {credencial.Nombre} {credencial.Apellidos} ({credencial.Escuela})");
 
             Dialogo.Show("Entrega cancelada.");
 
@@ -456,6 +462,9 @@ namespace SistemaCredenciales
             DatabaseService db = new DatabaseService();
             int n = db.MarcarTodasEntregadas(filtro);
 
+            new BitacoraService().Registrar("Marcado masivo",
+                $"{n} credenciales — {ambito}");
+
             Dialogo.Show($"Listo: {n} credenciales marcadas como entregadas.");
 
             CargarDatos();
@@ -483,6 +492,9 @@ namespace SistemaCredenciales
 
             DatabaseService db = new DatabaseService();
             int eliminadas = db.EliminarEscuela(escuelaActual);
+
+            new BitacoraService().Registrar("Quitar escuela",
+                $"{escuelaActual} ({eliminadas} credenciales)");
 
             Dialogo.Show($"Se quitó \"{escuelaActual}\" ({eliminadas} credenciales).");
 
