@@ -295,6 +295,111 @@ namespace SistemaCredenciales.Reports
             return rutaSalida;
         }
 
+        /// <summary>
+        /// Comprobante individual de entrega: foto, datos y firma de recibido.
+        /// </summary>
+        public string GenerarComprobante(
+            CredencialImportada c,
+            byte[]? foto,
+            string rutaFirma,
+            string rutaSalida)
+        {
+            var fLabel = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 11);
+            var fVal = FontFactory.GetFont(FontFactory.HELVETICA, 11);
+
+            Document documento = new Document(PageSize.A4, 45, 45, 45, 45);
+
+            using (FileStream stream =
+                new FileStream(rutaSalida, FileMode.Create))
+            {
+                PdfWriter.GetInstance(documento, stream);
+                documento.Open();
+
+                EscribirEncabezado(documento,
+                    "Comprobante de entrega de credencial", "");
+
+                var tabla = new PdfPTable(2) { WidthPercentage = 100 };
+                tabla.SetWidths(new float[] { 1f, 2.2f });
+
+                var celdaFoto = new PdfPCell
+                {
+                    Border = Rectangle.NO_BORDER,
+                    HorizontalAlignment = Element.ALIGN_CENTER,
+                    VerticalAlignment = Element.ALIGN_MIDDLE,
+                    Padding = 6
+                };
+
+                bool fotoPuesta = false;
+                if (foto != null && foto.Length > 100)
+                {
+                    try
+                    {
+                        Image img = Image.GetInstance(foto);
+                        img.ScaleToFit(130f, 165f);
+                        img.Alignment = Element.ALIGN_CENTER;
+                        celdaFoto.AddElement(img);
+                        fotoPuesta = true;
+                    }
+                    catch { }
+                }
+                if (!fotoPuesta)
+                    celdaFoto.AddElement(new Paragraph("(sin foto)", fVal));
+
+                tabla.AddCell(celdaFoto);
+
+                var celdaDatos = new PdfPCell
+                {
+                    Border = Rectangle.NO_BORDER,
+                    VerticalAlignment = Element.ALIGN_MIDDLE,
+                    Padding = 6
+                };
+
+                void Linea(string etiqueta, string valor)
+                {
+                    var p = new Paragraph { SpacingAfter = 7 };
+                    p.Add(new Chunk(etiqueta + ": ", fLabel));
+                    p.Add(new Chunk(valor ?? "", fVal));
+                    celdaDatos.AddElement(p);
+                }
+
+                Linea("Matrícula", c.Matricula);
+                Linea("Nombre", (c.Nombre + " " + c.Apellidos).Trim());
+                Linea("Escuela", c.Escuela);
+                Linea("Vigencia", c.Vigencia);
+                Linea("Fecha de entrega", c.FechaEntrega);
+
+                tabla.AddCell(celdaDatos);
+                documento.Add(tabla);
+
+                documento.Add(new Paragraph(" "));
+                documento.Add(new Paragraph("Firma de recibido:", fLabel));
+
+                if (!string.IsNullOrEmpty(rutaFirma) && File.Exists(rutaFirma))
+                {
+                    try
+                    {
+                        Image firma = Image.GetInstance(rutaFirma);
+                        firma.ScaleToFit(240f, 100f);
+                        firma.SpacingBefore = 6;
+                        documento.Add(firma);
+                    }
+                    catch { }
+                }
+                else
+                {
+                    documento.Add(new Paragraph("(sin firma)", fVal));
+                }
+
+                documento.Add(new Paragraph(" "));
+                documento.Add(new Paragraph(
+                    "Recibí mi credencial escolar de conformidad.", FuenteSubtitulo));
+
+                documento.Close();
+            }
+
+            return rutaSalida;
+        }
+
         private PdfPCell Celda(string texto)
         {
             return new PdfPCell(new Phrase(texto ?? "", FuenteCelda))

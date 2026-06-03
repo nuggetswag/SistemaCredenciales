@@ -70,7 +70,7 @@
 
                 <!-- NAVEGACIÓN -->
                 <StackPanel>
-                    <Button Content="🏫   Escuelas" Style="{StaticResource NavButton}"
+                    <Button Content="🏫   Cargar Escuelas" Style="{StaticResource NavButton}"
                             Margin="0,3" Click="BtnEscuelas_Click"/>
                     <Button Content="📦   Lotes" Style="{StaticResource NavButton}"
                             Margin="0,3" Click="BtnLotes_Click"/>
@@ -258,6 +258,12 @@
                                     Margin="10,0,0,0"
                                     ToolTip="Marcar como entregadas (sin firma) — requiere contraseña"
                                     Click="BtnMasivo_Click"/>
+                            <Button Content="🧾  Comprobante"
+                                    Style="{StaticResource GhostButton}"
+                                    Height="38" MinWidth="150"
+                                    Margin="10,0,0,0"
+                                    ToolTip="Generar comprobante de entrega (PDF) de la credencial seleccionada"
+                                    Click="BtnComprobante_Click"/>
                         </StackPanel>
                     </Grid>
 

@@ -3,6 +3,7 @@ using SistemaCredenciales.Reports;
 using SistemaCredenciales.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -73,6 +74,21 @@ namespace SistemaCredenciales
             {
                 // Si el logo no se puede leer, se queda el texto de respaldo.
             }
+        }
+
+        /// <summary>Al cerrar el programa hace un respaldo automático (silencioso).</summary>
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            try
+            {
+                new RespaldoService().RespaldoAutomatico();
+            }
+            catch
+            {
+                // Nunca impedir el cierre por un fallo del respaldo.
+            }
+
+            base.OnClosing(e);
         }
 
         /// <summary>Recarga el logo (lo llama Configuración al cambiarlo).</summary>
@@ -468,6 +484,56 @@ namespace SistemaCredenciales
             Dialogo.Show($"Listo: {n} credenciales marcadas como entregadas.");
 
             CargarDatos();
+        }
+
+        private void BtnComprobante_Click(object sender, RoutedEventArgs e)
+        {
+            if (dgEscuelas.SelectedItem == null)
+            {
+                Dialogo.Show("Selecciona una credencial.");
+                return;
+            }
+
+            var credencial = (CredencialImportada)dgEscuelas.SelectedItem;
+
+            if (!credencial.Entregada)
+            {
+                Dialogo.Show("El comprobante es para credenciales ya entregadas.");
+                return;
+            }
+
+            try
+            {
+                var db = new DatabaseService();
+
+                string rutaFirma = db.ObtenerRutaFirma(credencial.Id);
+                byte[]? foto = db.ObtenerFotoDeMDB(
+                    credencial.Escuela, credencial.Matricula);
+
+                AppConfig.Actual.AsegurarCarpetas();
+
+                string ruta = Path.Combine(
+                    AppConfig.Actual.CarpetaReportes,
+                    $"Comprobante_{credencial.Matricula}_{DateTime.Now:yyyy-MM-dd_HH-mm}.pdf");
+
+                new PdfReportService().GenerarComprobante(
+                    credencial, foto, rutaFirma, ruta);
+
+                new BitacoraService().Registrar(
+                    "Comprobante", $"{credencial.Matricula} - {credencial.Escuela}");
+
+                System.Diagnostics.Process.Start(
+                    new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = ruta,
+                        UseShellExecute = true
+                    });
+            }
+            catch (Exception ex)
+            {
+                Dialogo.Show("No se pudo generar el comprobante:\n\n" + ex.Message,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void BtnQuitarEscuela_Click(object sender, RoutedEventArgs e)

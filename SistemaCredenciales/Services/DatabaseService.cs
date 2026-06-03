@@ -190,6 +190,71 @@ namespace SistemaCredenciales.Services
             return lista;
         }
 
+        /// <summary>
+        /// Busca la foto de una matrícula en el .mdb de su escuela (en las
+        /// carpetas de búsqueda). Devuelve los bytes JPEG o null si no la halla.
+        /// </summary>
+        public byte[]? ObtenerFotoDeMDB(string escuela, string matricula)
+        {
+            foreach (string carpeta in AppConfig.Actual.CarpetasDeBusqueda())
+            {
+                string ruta = System.IO.Path.Combine(carpeta, escuela + ".mdb");
+
+                if (!System.IO.File.Exists(ruta))
+                    continue;
+
+                try
+                {
+                    string tabla = ObtenerTablaMDB(ruta);
+                    if (string.IsNullOrEmpty(tabla))
+                        continue;
+
+                    string cs =
+                        $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={ruta};";
+
+                    using (var connection = new OleDbConnection(cs))
+                    {
+                        connection.Open();
+
+                        using (var command =
+                            new OleDbCommand($"SELECT * FROM [{tabla}]", connection))
+                        using (OleDbDataReader reader = command.ExecuteReader())
+                        {
+                            var nombres = NombresColumnas(reader);
+                            var mapa = DetectarColumnas(reader);
+                            int idxFoto = BuscarColumna(nombres,
+                                "idwfoto", "foto", "fotografia", "imagen",
+                                "image", "photo", "picture");
+
+                            if (mapa.Matricula < 0 || idxFoto < 0)
+                                continue;
+
+                            while (reader.Read())
+                            {
+                                string m = ValorPorIndice(reader, mapa.Matricula);
+
+                                if (!string.Equals(m.Trim(), (matricula ?? "").Trim(),
+                                        StringComparison.OrdinalIgnoreCase))
+                                    continue;
+
+                                object valor = reader.GetValue(idxFoto);
+                                if (valor is byte[] b && b.Length > 100)
+                                    return b;
+
+                                return null;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // Si una base no se puede leer, se intenta con la siguiente.
+                }
+            }
+
+            return null;
+        }
+
         // ----------------------------------------------------------------
         //  IMPORTACIÓN DESDE EXCEL (.xlsx / .xls)
         // ----------------------------------------------------------------

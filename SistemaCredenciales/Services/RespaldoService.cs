@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 
 namespace SistemaCredenciales.Services
 {
@@ -80,6 +81,32 @@ namespace SistemaCredenciales.Services
             }
 
             return rutaZip;
+        }
+
+        /// <summary>
+        /// Crea un respaldo automático en la carpeta "Respaldos" (junto al .exe)
+        /// y conserva solo los más recientes. Pensado para ejecutarse al cerrar.
+        /// </summary>
+        public void RespaldoAutomatico(int conservar = 5)
+        {
+            string carpeta = Path.Combine(BaseDir, "Respaldos");
+            Directory.CreateDirectory(carpeta);
+
+            string ruta = Path.Combine(
+                carpeta, $"Auto_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.zip");
+
+            CrearRespaldo(ruta);
+
+            // Borrar los respaldos automáticos más viejos (conservar los N últimos).
+            var viejos = new DirectoryInfo(carpeta)
+                .GetFiles("Auto_*.zip")
+                .OrderByDescending(f => f.LastWriteTime)
+                .Skip(conservar);
+
+            foreach (FileInfo f in viejos)
+            {
+                try { f.Delete(); } catch { }
+            }
         }
 
         /// <summary>
