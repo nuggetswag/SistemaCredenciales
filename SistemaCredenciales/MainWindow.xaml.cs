@@ -395,6 +395,11 @@ namespace SistemaCredenciales
             new ReportesWindow().ShowDialog();
         }
 
+        private void BtnCredenciales_Click(object sender, RoutedEventArgs e)
+        {
+            new CredencialGenerarWindow().ShowDialog();
+        }
+
         private void BtnConfiguracion_Click(object sender, RoutedEventArgs e)
         {
             // Candado: para abrir Configuración hay que escribir la contraseña.

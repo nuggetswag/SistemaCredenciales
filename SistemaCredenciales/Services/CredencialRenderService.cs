@@ -16,6 +16,29 @@ namespace SistemaCredenciales.Services
     {
         public const int DefaultW = 1013; // CR80 a ~300 dpi (horizontal)
         public const int DefaultH = 638;
+        public const int NormLado = 1013; // lado largo máximo del lienzo de trabajo
+
+        /// <summary>
+        /// Tamaño del lienzo de trabajo a partir de la plantilla: se normaliza el
+        /// lado largo a <see cref="NormLado"/> px (las plantillas suelen venir en
+        /// resolución enorme). Si no hay plantilla, usa el tamaño por defecto.
+        /// </summary>
+        public static (int w, int h) TamanoCanvas(string plantilla)
+        {
+            if (!string.IsNullOrWhiteSpace(plantilla) && File.Exists(plantilla))
+            {
+                try
+                {
+                    using var ms = new MemoryStream(File.ReadAllBytes(plantilla));
+                    using var img = Image.FromStream(ms);
+                    double f = (double)NormLado / Math.Max(img.Width, img.Height);
+                    if (f > 1) f = 1; // no agrandar plantillas pequeñas
+                    return ((int)Math.Round(img.Width * f), (int)Math.Round(img.Height * f));
+                }
+                catch { }
+            }
+            return (DefaultW, DefaultH);
+        }
 
         public byte[] RenderLado(
             CredencialImportada persona, DisenoCredencial diseno, byte[]? foto)
@@ -45,21 +68,28 @@ namespace SistemaCredenciales.Services
 
         private Bitmap CrearLienzo(string plantilla)
         {
-            if (!string.IsNullOrWhiteSpace(plantilla) && File.Exists(plantilla))
-            {
-                try
-                {
-                    byte[] bytes = File.ReadAllBytes(plantilla);
-                    using var ms = new MemoryStream(bytes);
-                    using var tpl = Image.FromStream(ms);
-                    return new Bitmap(tpl); // copia (no bloquea el archivo)
-                }
-                catch { }
-            }
+            var (w, h) = TamanoCanvas(plantilla);
+            var canvas = new Bitmap(w, h);
 
-            var canvas = new Bitmap(DefaultW, DefaultH);
             using (var g = Graphics.FromImage(canvas))
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+                if (!string.IsNullOrWhiteSpace(plantilla) && File.Exists(plantilla))
+                {
+                    try
+                    {
+                        byte[] bytes = File.ReadAllBytes(plantilla);
+                        using var ms = new MemoryStream(bytes);
+                        using var tpl = Image.FromStream(ms);
+                        g.DrawImage(tpl, new Rectangle(0, 0, w, h));
+                        return canvas;
+                    }
+                    catch { }
+                }
+
                 g.Clear(Color.White);
+            }
             return canvas;
         }
 

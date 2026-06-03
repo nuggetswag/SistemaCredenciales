@@ -78,6 +78,8 @@
                             Margin="0,3" Click="BtnEntregas_Click"/>
                     <Button Content="📊   Reportes" Style="{StaticResource NavButton}"
                             Margin="0,3" Click="BtnReportes_Click"/>
+                    <Button Content="🪪   Credenciales" Style="{StaticResource NavButton}"
+                            Margin="0,3" Click="BtnCredenciales_Click"/>
                     <Button Content="⚙   Configuración" Style="{StaticResource NavButton}"
                             Margin="0,3" Click="BtnConfiguracion_Click"/>
                 </StackPanel>
