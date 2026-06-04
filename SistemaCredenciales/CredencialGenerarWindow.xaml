@@ -24,8 +24,9 @@
             <TextBlock Text="Escuela:" VerticalAlignment="Center" Margin="0,0,8,6"/>
             <ComboBox x:Name="cmbEscuela" Width="210" Margin="0,0,16,6"
                       SelectionChanged="Filtro_Changed"/>
-            <TextBlock Text="Categoría:" VerticalAlignment="Center" Margin="0,0,8,6"/>
+            <TextBlock Text="Filtrar:" VerticalAlignment="Center" Margin="0,0,8,6"/>
             <ComboBox x:Name="cmbCategoria" Width="150" Margin="0,0,16,6"
+                      ToolTip="Muestra solo la categoría elegida"
                       SelectionChanged="Filtro_Changed"/>
             <Button Content="🎨 Diseñador" Style="{StaticResource GhostButton}"
                     Height="36" Margin="0,0,10,6" Click="BtnDisenador_Click"/>
@@ -33,8 +34,10 @@
                     Height="36" Margin="0,0,16,6" Click="BtnTodos_Click"/>
 
             <TextBlock Text="Asignar categoría:" VerticalAlignment="Center" Margin="0,0,8,6"/>
-            <ComboBox x:Name="cmbAsignar" Width="160" IsEditable="True" Margin="0,0,8,6"
-                      ToolTip="Elige o escribe una categoría"/>
+            <ComboBox x:Name="cmbAsignar" Width="170" Margin="0,0,6,6"
+                      ToolTip="Elige la categoría a asignar a las personas seleccionadas"/>
+            <Button Content="➕ Nueva" Style="{StaticResource GhostButton}"
+                    Height="36" Margin="0,0,6,6" Click="BtnNuevaCat_Click"/>
             <Button Content="✔ Aplicar a seleccionadas" Style="{StaticResource SuccessButton}"
                     Height="36" Margin="0,0,16,6" Click="BtnAplicarCat_Click"/>
 

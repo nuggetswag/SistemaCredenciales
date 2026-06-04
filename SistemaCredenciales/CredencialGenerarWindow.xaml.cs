@@ -32,7 +32,8 @@ namespace SistemaCredenciales
 
         private void CargarCategorias()
         {
-            string? seleccion = cmbCategoria.SelectedItem as string;
+            string? seleccionFiltro = cmbCategoria.SelectedItem as string;
+            string? seleccionAsignar = cmbAsignar.SelectedItem as string;
 
             cmbCategoria.Items.Clear();
             cmbCategoria.Items.Add("Todas");
@@ -46,9 +47,12 @@ namespace SistemaCredenciales
                 if (!cmbAsignar.Items.Contains(c)) cmbAsignar.Items.Add(c);
             }
 
-            cmbCategoria.SelectedItem = cmbCategoria.Items.Contains(seleccion)
-                ? seleccion : "Todas";
+            cmbCategoria.SelectedItem = cmbCategoria.Items.Contains(seleccionFiltro)
+                ? seleccionFiltro : "Todas";
             if (cmbCategoria.SelectedItem == null) cmbCategoria.SelectedIndex = 0;
+
+            if (seleccionAsignar != null && cmbAsignar.Items.Contains(seleccionAsignar))
+                cmbAsignar.SelectedItem = seleccionAsignar;
         }
 
         private void CargarEscuelas()
@@ -98,12 +102,28 @@ namespace SistemaCredenciales
             return personas;
         }
 
+        private void BtnNuevaCat_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new EntradaWindow(
+                "Nueva categoría", "Escribe el nombre de la nueva categoría:")
+            {
+                Owner = this
+            };
+            if (dlg.ShowDialog() != true || string.IsNullOrWhiteSpace(dlg.Valor))
+                return;
+
+            string nueva = dlg.Valor.Trim();
+            if (!cmbAsignar.Items.Contains(nueva))
+                cmbAsignar.Items.Add(nueva);
+            cmbAsignar.SelectedItem = nueva;
+        }
+
         private void BtnAplicarCat_Click(object sender, RoutedEventArgs e)
         {
-            string cat = cmbAsignar.Text.Trim();
+            string cat = (cmbAsignar.SelectedItem as string ?? "").Trim();
             if (string.IsNullOrEmpty(cat))
             {
-                Dialogo.Show("Escribe o elige una categoría para asignar.");
+                Dialogo.Show("Elige una categoría (o crea una con ➕ Nueva) para asignar.");
                 return;
             }
 
