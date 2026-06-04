@@ -77,10 +77,9 @@
                        Margin="0,0,16,0"/>
             <Button Content="👁 Vista previa" Style="{StaticResource GhostButton}"
                     Height="40" Width="150" Click="BtnPreview_Click"/>
-            <Button Content="📄 PDF individual" Style="{StaticResource PurpleButton}"
-                    Height="40" Width="170" Margin="10,0,0,0" Click="BtnIndividual_Click"/>
-            <Button Content="🗂 PDF lote (mosaico)"
-                    Height="40" Width="200" Margin="10,0,0,0" Click="BtnLote_Click"/>
+            <Button Content="📄 Generar PDF (frente y reverso)"
+                    Style="{StaticResource PurpleButton}"
+                    Height="40" Width="260" Margin="10,0,0,0" Click="BtnIndividual_Click"/>
         </StackPanel>
     </Grid>
 </Window>

@@ -266,32 +266,6 @@ namespace SistemaCredenciales
             }
         }
 
-        private void BtnLote_Click(object sender, RoutedEventArgs e)
-        {
-            var lista = Seleccionadas();
-            if (lista.Count == 0) { Dialogo.Show("Selecciona al menos una persona."); return; }
-
-            try
-            {
-                var frentes = new List<byte[]>();
-                foreach (CredencialImportada p in lista)
-                    frentes.Add(RenderPersona(p).frente);
-
-                string ruta = RutaSalida("Lote_credenciales");
-                new PdfReportService().GenerarCredencialesMosaico(frentes, ruta);
-
-                new BitacoraService().Registrar("Generar credenciales (lote)",
-                    $"{lista.Count} credenciales");
-
-                Abrir(ruta);
-            }
-            catch (Exception ex)
-            {
-                Dialogo.Show("No se pudo generar el lote:\n\n" + ex.Message,
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private string RutaSalida(string prefijo)
         {
             AppConfig.Actual.AsegurarCarpetas();

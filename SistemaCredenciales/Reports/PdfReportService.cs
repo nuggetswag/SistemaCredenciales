@@ -446,41 +446,58 @@ namespace SistemaCredenciales.Reports
         private static float Mm(double mm) => (float)(mm * 72.0 / 25.4);
 
         /// <summary>
-        /// Una credencial por página (frente y, si existe, reverso en página
-        /// aparte). Cada imagen centrada y ajustada a la página.
+        /// Una credencial por página, a TAMAÑO TARJETA y SIN márgenes: el frente
+        /// llena una página completa y el reverso la siguiente. Ideal para
+        /// imprimir a doble cara sin que se recorte.
         /// </summary>
         public string GenerarCredencialesIndividual(
             List<(byte[] frente, byte[]? reverso)> credenciales, string rutaSalida)
         {
-            Document documento = new Document(PageSize.A4, 36, 36, 36, 36);
+            Document documento = new Document();
+            documento.SetMargins(0, 0, 0, 0);
 
             using (FileStream stream = new FileStream(rutaSalida, FileMode.Create))
             {
                 PdfWriter.GetInstance(documento, stream);
                 documento.Open();
 
-                float maxW = documento.PageSize.Width - 72;
-                float maxH = documento.PageSize.Height - 72;
-                bool primera = true;
-
                 foreach (var (frente, reverso) in credenciales)
                 {
-                    if (!primera) documento.NewPage();
-                    primera = false;
-
-                    AgregarImagenCentrada(documento, frente, maxW, maxH);
+                    AgregarPaginaCompleta(documento, frente);
 
                     if (reverso != null && reverso.Length > 0)
-                    {
-                        documento.NewPage();
-                        AgregarImagenCentrada(documento, reverso, maxW, maxH);
-                    }
+                        AgregarPaginaCompleta(documento, reverso);
                 }
 
                 documento.Close();
             }
 
             return rutaSalida;
+        }
+
+        /// <summary>
+        /// Agrega una página del tamaño exacto de la imagen (≈ tarjeta a 300 dpi)
+        /// con la imagen ocupando toda la hoja, sin márgenes.
+        /// </summary>
+        private void AgregarPaginaCompleta(Document doc, byte[] bytes)
+        {
+            try
+            {
+                Image img = Image.GetInstance(bytes);
+
+                // img.Width/Height vienen en puntos a 72 dpi = nº de píxeles.
+                float pw = img.Width * 72f / 300f;
+                float ph = img.Height * 72f / 300f;
+
+                doc.SetPageSize(new Rectangle(pw, ph));
+                doc.SetMargins(0, 0, 0, 0);
+                doc.NewPage();
+
+                img.ScaleAbsolute(pw, ph);
+                img.SetAbsolutePosition(0, 0);
+                doc.Add(img);
+            }
+            catch { }
         }
 
         /// <summary>
