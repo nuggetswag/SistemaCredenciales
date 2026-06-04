@@ -88,6 +88,25 @@ namespace SistemaCredenciales.Services
             return new DisenoCredencial { Tipo = tipo, Lado = lado };
         }
 
+        /// <summary>Tipos (categorías) que ya tienen algún diseño guardado.</summary>
+        public List<string> TiposConDiseno()
+        {
+            var lista = new List<string>();
+            using (SqliteConnection connection = sqlite.ObtenerConexion())
+            {
+                connection.Open();
+                using (var command = new SqliteCommand(
+                    "SELECT DISTINCT Tipo FROM DisenosCredencial WHERE Tipo <> '' ORDER BY Tipo",
+                    connection))
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                        lista.Add(reader["Tipo"]?.ToString() ?? "");
+                }
+            }
+            return lista;
+        }
+
         /// <summary>True si hay un diseño guardado (con plantilla o campos).</summary>
         public bool TieneDiseno(string tipo, string lado)
         {

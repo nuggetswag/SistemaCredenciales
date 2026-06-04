@@ -788,6 +788,71 @@ namespace SistemaCredenciales.Services
         }
 
         // ----------------------------------------------------------------
+        //  CATEGORÍAS
+        // ----------------------------------------------------------------
+
+        /// <summary>Categorías distintas presentes en los datos.</summary>
+        public List<string> ObtenerCategorias()
+        {
+            var lista = new List<string>();
+            using (SqliteConnection connection = sqlite.ObtenerConexion())
+            {
+                connection.Open();
+                using (var command = new SqliteCommand(
+                    @"SELECT DISTINCT Categoria FROM CredencialesImportadas
+                      WHERE Categoria IS NOT NULL AND Categoria <> ''
+                      ORDER BY Categoria", connection))
+                using (SqliteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                        lista.Add(reader["Categoria"]?.ToString() ?? "");
+                }
+            }
+            return lista;
+        }
+
+        /// <summary>Cambia la categoría de una credencial.</summary>
+        public void ActualizarCategoria(int id, string categoria)
+        {
+            EjecutarActualizacion(
+                "UPDATE CredencialesImportadas SET Categoria = @Categoria WHERE Id = @Id",
+                ("@Categoria", categoria ?? ""), ("@Id", id));
+        }
+
+        /// <summary>
+        /// Renombra una categoría en todas las credenciales y en sus diseños.
+        /// Devuelve cuántas credenciales se actualizaron.
+        /// </summary>
+        public int RenombrarCategoria(string vieja, string nueva)
+        {
+            using (SqliteConnection connection = sqlite.ObtenerConexion())
+            {
+                connection.Open();
+
+                int n;
+                using (var c1 = new SqliteCommand(
+                    "UPDATE CredencialesImportadas SET Categoria = @Nueva WHERE Categoria = @Vieja",
+                    connection))
+                {
+                    c1.Parameters.AddWithValue("@Nueva", nueva);
+                    c1.Parameters.AddWithValue("@Vieja", vieja);
+                    n = c1.ExecuteNonQuery();
+                }
+
+                using (var c2 = new SqliteCommand(
+                    "UPDATE DisenosCredencial SET Tipo = @Nueva WHERE Tipo = @Vieja",
+                    connection))
+                {
+                    c2.Parameters.AddWithValue("@Nueva", nueva);
+                    c2.Parameters.AddWithValue("@Vieja", vieja);
+                    c2.ExecuteNonQuery();
+                }
+
+                return n;
+            }
+        }
+
+        // ----------------------------------------------------------------
         //  ENTREGAS Y FIRMAS
         // ----------------------------------------------------------------
 

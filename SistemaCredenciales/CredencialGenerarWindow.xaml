@@ -20,18 +20,27 @@
         <TextBlock Text="🪪 Generar credenciales" Style="{StaticResource TituloPantalla}"/>
 
         <!-- FILTROS -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,0">
-            <TextBlock Text="Escuela:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <ComboBox x:Name="cmbEscuela" Width="230" SelectionChanged="Filtro_Changed"/>
-            <TextBlock Text="Categoría:" VerticalAlignment="Center" Margin="16,0,8,0"/>
-            <ComboBox x:Name="cmbCategoria" Width="150" SelectionChanged="Filtro_Changed"/>
+        <WrapPanel Grid.Row="1" Margin="0,14,0,0">
+            <TextBlock Text="Escuela:" VerticalAlignment="Center" Margin="0,0,8,6"/>
+            <ComboBox x:Name="cmbEscuela" Width="210" Margin="0,0,16,6"
+                      SelectionChanged="Filtro_Changed"/>
+            <TextBlock Text="Categoría:" VerticalAlignment="Center" Margin="0,0,8,6"/>
+            <ComboBox x:Name="cmbCategoria" Width="150" Margin="0,0,16,6"
+                      SelectionChanged="Filtro_Changed"/>
             <Button Content="🎨 Diseñador" Style="{StaticResource GhostButton}"
-                    Height="36" Margin="16,0,0,0" Click="BtnDisenador_Click"/>
+                    Height="36" Margin="0,0,10,6" Click="BtnDisenador_Click"/>
             <Button Content="Seleccionar todos" Style="{StaticResource GhostButton}"
-                    Height="36" Margin="10,0,0,0" Click="BtnTodos_Click"/>
-            <TextBlock x:Name="txtConteo" VerticalAlignment="Center" Margin="16,0,0,0"
+                    Height="36" Margin="0,0,16,6" Click="BtnTodos_Click"/>
+
+            <TextBlock Text="Asignar categoría:" VerticalAlignment="Center" Margin="0,0,8,6"/>
+            <ComboBox x:Name="cmbAsignar" Width="160" IsEditable="True" Margin="0,0,8,6"
+                      ToolTip="Elige o escribe una categoría"/>
+            <Button Content="✔ Aplicar a seleccionadas" Style="{StaticResource SuccessButton}"
+                    Height="36" Margin="0,0,16,6" Click="BtnAplicarCat_Click"/>
+
+            <TextBlock x:Name="txtConteo" VerticalAlignment="Center"
                        FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
-        </StackPanel>
+        </WrapPanel>
 
         <DataGrid x:Name="dgPersonas" Grid.Row="2" Margin="0,14,0,0"
                   IsReadOnly="True" SelectionMode="Extended"

@@ -21,8 +21,10 @@
                 <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.10" Color="#1E293B"/>
             </Border.Effect>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Tipo:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                <ComboBox x:Name="cmbTipo" Width="130" SelectionChanged="Filtro_Changed"/>
+                <TextBlock Text="Categoría:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <ComboBox x:Name="cmbTipo" Width="170" IsEditable="True"
+                          ToolTip="Elige una categoría existente o escribe una nueva"
+                          DropDownClosed="Tipo_DropClosed" LostFocus="Tipo_Commit"/>
                 <TextBlock Text="Lado:" VerticalAlignment="Center" Margin="14,0,6,0"/>
                 <ComboBox x:Name="cmbLado" Width="120" SelectionChanged="Filtro_Changed"/>
                 <Button Content="🖼 Cargar plantilla" Style="{StaticResource GhostButton}"

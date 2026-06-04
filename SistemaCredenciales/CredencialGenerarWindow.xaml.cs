@@ -25,12 +25,30 @@ namespace SistemaCredenciales
         {
             InitializeComponent();
 
-            cmbCategoria.Items.Add("Todas");
-            foreach (string t in DisenoService.Tipos) cmbCategoria.Items.Add(t);
-            cmbCategoria.SelectedIndex = 0;
-
             CargarEscuelas();
+            CargarCategorias();
             CargarPersonas();
+        }
+
+        private void CargarCategorias()
+        {
+            string? seleccion = cmbCategoria.SelectedItem as string;
+
+            cmbCategoria.Items.Clear();
+            cmbCategoria.Items.Add("Todas");
+
+            cmbAsignar.Items.Clear();
+            foreach (string t in DisenoService.Tipos) cmbAsignar.Items.Add(t);
+
+            foreach (string c in db.ObtenerCategorias())
+            {
+                cmbCategoria.Items.Add(c);
+                if (!cmbAsignar.Items.Contains(c)) cmbAsignar.Items.Add(c);
+            }
+
+            cmbCategoria.SelectedItem = cmbCategoria.Items.Contains(seleccion)
+                ? seleccion : "Todas";
+            if (cmbCategoria.SelectedItem == null) cmbCategoria.SelectedIndex = 0;
         }
 
         private void CargarEscuelas()
@@ -56,7 +74,7 @@ namespace SistemaCredenciales
             personas = db.ObtenerCredencialesFiltradas(filtro, null, null, null);
 
             if (categoria != "Todas")
-                personas = personas.Where(p => MapTipo(p.Categoria) == categoria).ToList();
+                personas = personas.Where(p => (p.Categoria ?? "") == categoria).ToList();
 
             dgPersonas.ItemsSource = personas;
             ActualizarConteo();
@@ -80,19 +98,41 @@ namespace SistemaCredenciales
             return personas;
         }
 
-        /// <summary>Mapea la categoría de la persona a un tipo de diseño.</summary>
-        private string MapTipo(string categoria)
+        private void BtnAplicarCat_Click(object sender, RoutedEventArgs e)
         {
-            string c = (categoria ?? "").ToLowerInvariant();
-            if (c.Contains("docent") || c.Contains("maestr") || c.Contains("profe"))
-                return "Docente";
-            if (c.Contains("admin")) return "Admin";
-            return "Alumno";
+            string cat = cmbAsignar.Text.Trim();
+            if (string.IsNullOrEmpty(cat))
+            {
+                Dialogo.Show("Escribe o elige una categoría para asignar.");
+                return;
+            }
+
+            var sel = dgPersonas.SelectedItems.Cast<CredencialImportada>().ToList();
+            if (sel.Count == 0)
+            {
+                Dialogo.Show("Selecciona primero las personas a las que cambiar la categoría.");
+                return;
+            }
+
+            foreach (CredencialImportada p in sel)
+            {
+                db.ActualizarCategoria(p.Id, cat);
+                p.Categoria = cat;
+            }
+
+            new BitacoraService().Registrar("Cambiar categoría",
+                $"{sel.Count} → {cat}");
+
+            CargarCategorias();
+            CargarPersonas();
+
+            Dialogo.Show($"Categoría \"{cat}\" asignada a {sel.Count} persona(s). ✓",
+                "Listo", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private (byte[] frente, byte[]? reverso) RenderPersona(CredencialImportada p)
         {
-            string tipo = MapTipo(p.Categoria);
+            string tipo = string.IsNullOrWhiteSpace(p.Categoria) ? "Alumno" : p.Categoria;
             DisenoCredencial dFrente = disenoService.Obtener(tipo, "frente");
             DisenoCredencial dReverso = disenoService.Obtener(tipo, "reverso");
 

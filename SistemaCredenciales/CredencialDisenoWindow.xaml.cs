@@ -37,7 +37,16 @@ namespace SistemaCredenciales
         {
             InitializeComponent();
 
-            foreach (string t in DisenoService.Tipos) cmbTipo.Items.Add(t);
+            // Categorías: las que ya existen en datos + las que tienen diseño +
+            // las predefinidas (sugerencias). El campo es editable: puedes escribir
+            // una categoría nueva.
+            var cats = new List<string>(DisenoService.Tipos);
+            foreach (string c in new DatabaseService().ObtenerCategorias())
+                if (!cats.Contains(c)) cats.Add(c);
+            foreach (string c in disenoService.TiposConDiseno())
+                if (!cats.Contains(c)) cats.Add(c);
+
+            foreach (string c in cats) cmbTipo.Items.Add(c);
             foreach (string l in DisenoService.Lados) cmbLado.Items.Add(l);
             cmbAlign.Items.Add("left");
             cmbAlign.Items.Add("center");
@@ -49,7 +58,18 @@ namespace SistemaCredenciales
             CargarDiseno();
         }
 
-        private string Tipo => cmbTipo.SelectedItem as string ?? "Alumno";
+        private string Tipo =>
+            string.IsNullOrWhiteSpace(cmbTipo.Text) ? "Alumno" : cmbTipo.Text.Trim();
+
+        private void Tipo_Commit(object sender, RoutedEventArgs e) => RecargarSiCambioTipo();
+
+        private void Tipo_DropClosed(object? sender, EventArgs e) => RecargarSiCambioTipo();
+
+        private void RecargarSiCambioTipo()
+        {
+            if (!cargando && IsLoaded && Tipo != diseno.Tipo)
+                CargarDiseno();
+        }
         private string Lado => cmbLado.SelectedItem as string ?? "frente";
 
         private void Filtro_Changed(object sender, SelectionChangedEventArgs e)
