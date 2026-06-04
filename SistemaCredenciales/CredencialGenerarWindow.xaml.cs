@@ -118,6 +118,38 @@ namespace SistemaCredenciales
             cmbAsignar.SelectedItem = nueva;
         }
 
+        private void BtnEliminarCat_Click(object sender, RoutedEventArgs e)
+        {
+            string cat = (cmbAsignar.SelectedItem as string ?? "").Trim();
+            if (string.IsNullOrEmpty(cat))
+            {
+                Dialogo.Show("Elige en el combo la categoría que quieres eliminar.");
+                return;
+            }
+
+            MessageBoxResult r = Dialogo.Show(
+                $"¿Eliminar la categoría \"{cat}\"?\n\n" +
+                "Se quitará de las personas que la tengan (quedarán sin categoría) " +
+                "y se borrará su diseño de credencial.",
+                "Eliminar categoría",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (r != MessageBoxResult.Yes)
+                return;
+
+            int n = db.EliminarCategoria(cat);
+
+            new BitacoraService().Registrar("Eliminar categoría",
+                $"{cat} ({n} personas)");
+
+            CargarCategorias();
+            CargarPersonas();
+
+            Dialogo.Show(
+                $"Categoría \"{cat}\" eliminada (afectó a {n} persona(s)).",
+                "Listo", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
         private void BtnAplicarCat_Click(object sender, RoutedEventArgs e)
         {
             string cat = (cmbAsignar.SelectedItem as string ?? "").Trim();

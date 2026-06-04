@@ -852,6 +852,36 @@ namespace SistemaCredenciales.Services
             }
         }
 
+        /// <summary>
+        /// Elimina una categoría: la quita de las personas que la tengan (quedan
+        /// sin categoría) y borra sus diseños. Devuelve cuántas personas la tenían.
+        /// </summary>
+        public int EliminarCategoria(string categoria)
+        {
+            using (SqliteConnection connection = sqlite.ObtenerConexion())
+            {
+                connection.Open();
+
+                int n;
+                using (var c1 = new SqliteCommand(
+                    "UPDATE CredencialesImportadas SET Categoria = '' WHERE Categoria = @Cat",
+                    connection))
+                {
+                    c1.Parameters.AddWithValue("@Cat", categoria);
+                    n = c1.ExecuteNonQuery();
+                }
+
+                using (var c2 = new SqliteCommand(
+                    "DELETE FROM DisenosCredencial WHERE Tipo = @Cat", connection))
+                {
+                    c2.Parameters.AddWithValue("@Cat", categoria);
+                    c2.ExecuteNonQuery();
+                }
+
+                return n;
+            }
+        }
+
         // ----------------------------------------------------------------
         //  ENTREGAS Y FIRMAS
         // ----------------------------------------------------------------

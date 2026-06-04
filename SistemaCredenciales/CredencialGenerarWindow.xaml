@@ -48,6 +48,10 @@
                               ToolTip="Categoría a asignar a las personas seleccionadas"/>
                     <Button Content="➕ Nueva" Style="{StaticResource GhostButton}"
                             Height="36" Margin="0,0,6,0" Click="BtnNuevaCat_Click"/>
+                    <Button Content="🗑 Eliminar" Style="{StaticResource GhostButton}"
+                            Height="36" Margin="0,0,6,0"
+                            ToolTip="Elimina la categoría elegida (la quita de las personas y borra su diseño)"
+                            Click="BtnEliminarCat_Click"/>
                     <Button Content="✔ Aplicar" Style="{StaticResource SuccessButton}"
                             Height="36" Click="BtnAplicarCat_Click"/>
                 </StackPanel>
