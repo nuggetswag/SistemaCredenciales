@@ -17,34 +17,42 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="🪪 Generar credenciales" Style="{StaticResource TituloPantalla}"/>
+        <TextBlock Text="🎫 Generar credenciales" Style="{StaticResource TituloPantalla}"/>
 
-        <!-- FILTROS -->
-        <WrapPanel Grid.Row="1" Margin="0,14,0,0">
-            <TextBlock Text="Escuela:" VerticalAlignment="Center" Margin="0,0,8,6"/>
-            <ComboBox x:Name="cmbEscuela" Width="210" Margin="0,0,16,6"
-                      SelectionChanged="Filtro_Changed"/>
-            <TextBlock Text="Filtrar:" VerticalAlignment="Center" Margin="0,0,8,6"/>
-            <ComboBox x:Name="cmbCategoria" Width="150" Margin="0,0,16,6"
-                      ToolTip="Muestra solo la categoría elegida"
-                      SelectionChanged="Filtro_Changed"/>
-            <Button Content="🎨 Diseñador" Style="{StaticResource GhostButton}"
-                    Height="36" Margin="0,0,10,6" Click="BtnDisenador_Click"/>
-            <Button Content="Seleccionar todos" Style="{StaticResource GhostButton}"
-                    Height="36" Margin="0,0,16,6" Click="BtnTodos_Click"/>
+        <!-- FILTROS (dos filas ordenadas) -->
+        <StackPanel Grid.Row="1" Margin="0,14,0,0">
+            <!-- Fila 1: filtros y acciones -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="Escuela:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="cmbEscuela" Width="220" Margin="0,0,18,0"
+                          SelectionChanged="Filtro_Changed"/>
+                <TextBlock Text="Filtrar:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="cmbCategoria" Width="150" Margin="0,0,18,0"
+                          ToolTip="Muestra solo la categoría elegida"
+                          SelectionChanged="Filtro_Changed"/>
+                <Button Content="🎨 Diseñador" Style="{StaticResource GhostButton}"
+                        Height="36" Margin="0,0,10,0" Click="BtnDisenador_Click"/>
+                <Button Content="Seleccionar todos" Style="{StaticResource GhostButton}"
+                        Height="36" Click="BtnTodos_Click"/>
+                <TextBlock x:Name="txtConteo" VerticalAlignment="Center" Margin="18,0,0,0"
+                           FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+            </StackPanel>
 
-            <TextBlock Text="Categoría a asignar:" FontWeight="SemiBold"
-                       VerticalAlignment="Center" Margin="0,0,8,6"/>
-            <ComboBox x:Name="cmbAsignar" Width="170" Margin="0,0,6,6"
-                      ToolTip="Elige la categoría a asignar a las personas seleccionadas"/>
-            <Button Content="➕ Nueva" Style="{StaticResource GhostButton}"
-                    Height="36" Margin="0,0,6,6" Click="BtnNuevaCat_Click"/>
-            <Button Content="✔ Aplicar a seleccionadas" Style="{StaticResource SuccessButton}"
-                    Height="36" Margin="0,0,16,6" Click="BtnAplicarCat_Click"/>
-
-            <TextBlock x:Name="txtConteo" VerticalAlignment="Center"
-                       FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
-        </WrapPanel>
+            <!-- Fila 2: asignar categoría -->
+            <Border Background="#EEF2FF" CornerRadius="10" Padding="10,8">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Cambiar categoría de las seleccionadas →"
+                               FontWeight="SemiBold" VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <ComboBox x:Name="cmbAsignar" Width="170" Margin="0,0,6,0"
+                              ToolTip="Categoría a asignar a las personas seleccionadas"/>
+                    <Button Content="➕ Nueva" Style="{StaticResource GhostButton}"
+                            Height="36" Margin="0,0,6,0" Click="BtnNuevaCat_Click"/>
+                    <Button Content="✔ Aplicar" Style="{StaticResource SuccessButton}"
+                            Height="36" Click="BtnAplicarCat_Click"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
 
         <DataGrid x:Name="dgPersonas" Grid.Row="2" Margin="0,14,0,0"
                   IsReadOnly="True" SelectionMode="Extended"
