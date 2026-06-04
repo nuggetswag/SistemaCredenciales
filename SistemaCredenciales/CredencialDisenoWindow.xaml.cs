@@ -59,16 +59,22 @@ namespace SistemaCredenciales
         }
 
         private string Tipo =>
-            string.IsNullOrWhiteSpace(cmbTipo.Text) ? "Alumno" : cmbTipo.Text.Trim();
+            cmbTipo.SelectedItem as string ?? "Alumno";
 
-        private void Tipo_Commit(object sender, RoutedEventArgs e) => RecargarSiCambioTipo();
-
-        private void Tipo_DropClosed(object? sender, EventArgs e) => RecargarSiCambioTipo();
-
-        private void RecargarSiCambioTipo()
+        private void BtnNuevaTipo_Click(object sender, RoutedEventArgs e)
         {
-            if (!cargando && IsLoaded && Tipo != diseno.Tipo)
-                CargarDiseno();
+            var dlg = new EntradaWindow(
+                "Nueva categoría", "Escribe el nombre de la nueva categoría:")
+            {
+                Owner = this
+            };
+            if (dlg.ShowDialog() != true || string.IsNullOrWhiteSpace(dlg.Valor))
+                return;
+
+            string nueva = dlg.Valor.Trim();
+            if (!cmbTipo.Items.Contains(nueva))
+                cmbTipo.Items.Add(nueva);
+            cmbTipo.SelectedItem = nueva; // dispara la carga del diseño
         }
         private string Lado => cmbLado.SelectedItem as string ?? "frente";
 

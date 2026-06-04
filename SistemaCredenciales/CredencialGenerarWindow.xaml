@@ -33,7 +33,8 @@
             <Button Content="Seleccionar todos" Style="{StaticResource GhostButton}"
                     Height="36" Margin="0,0,16,6" Click="BtnTodos_Click"/>
 
-            <TextBlock Text="Asignar categoría:" VerticalAlignment="Center" Margin="0,0,8,6"/>
+            <TextBlock Text="Categoría a asignar:" FontWeight="SemiBold"
+                       VerticalAlignment="Center" Margin="0,0,8,6"/>
             <ComboBox x:Name="cmbAsignar" Width="170" Margin="0,0,6,6"
                       ToolTip="Elige la categoría a asignar a las personas seleccionadas"/>
             <Button Content="➕ Nueva" Style="{StaticResource GhostButton}"
